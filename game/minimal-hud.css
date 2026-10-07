@@ -11,13 +11,13 @@
 .world-status,#tutorial-card,#hunt-status,#class-abilities,#route-status,#raid-banner,.quest-ribbon,.direction-pad,.interaction-hint,#world-labels,.resume-title{display:none!important}
 #game[data-paused=true] .viewport::after{display:none!important}
 #hud-menu{position:absolute;z-index:22;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));min-height:44px;min-width:76px}
-#hud-menu-surface{position:absolute;z-index:23;left:8px;bottom:60px;width:min(620px,calc(100% - 16px));max-height:calc(100% - 76px);overflow:auto}
+#hud-menu-surface{position:absolute;z-index:23;left:8px;bottom:84px;width:min(620px,calc(100% - 16px));max-height:calc(100% - 100px);overflow:auto}
 #hud-menu-surface[hidden]{display:none!important}
 /* Messages (toasts, the fallen notice and small conversation windows): the outer rectangle is capped at 3.5% of the view (minimal-hud.js). */
-#toast,#death,dialog#panel[data-compact=true]{box-sizing:border-box!important;position:absolute!important;left:max(8px,env(safe-area-inset-left))!important;right:auto!important;top:auto!important;bottom:60px!important;transform:none!important;margin:0!important;width:var(--message-width)!important;min-width:0!important;max-width:var(--message-width)!important;height:var(--message-height)!important;min-height:0!important;max-height:var(--message-height)!important;overflow:auto!important;z-index:24}
+#toast,#death,dialog#panel[data-compact=true]{box-sizing:border-box!important;position:absolute!important;left:max(8px,env(safe-area-inset-left))!important;right:auto!important;top:auto!important;bottom:84px!important;transform:none!important;margin:0!important;width:var(--message-width)!important;min-width:0!important;max-width:var(--message-width)!important;height:var(--message-height)!important;min-height:0!important;max-height:var(--message-height)!important;overflow:auto!important;z-index:24}
 #toast:empty{display:none!important}#death[hidden]{display:none!important}
 dialog#panel[data-compact=true] .npc-detail,dialog#panel[data-compact=true] canvas{display:none!important}
 dialog#panel[data-compact=true][open]{display:block!important}dialog#panel[data-compact=true] #panel-body{overflow:visible!important}
 /* Larger inventory/settings forms appear only after deliberate menu/keyboard access, in the journey book's place. */
-dialog#panel:not(.creation-dialog):not([data-compact=true]){position:fixed;inset:auto auto 60px 8px!important;margin:0!important;transform:none!important;width:min(660px,calc(100% - 16px))!important;max-width:calc(100% - 16px)!important;max-height:calc(100% - 76px)!important;min-width:0}
+dialog#panel:not(.creation-dialog):not([data-compact=true]){position:fixed;inset:auto auto 84px 8px!important;margin:0!important;transform:none!important;width:min(684px,calc(100% - 16px))!important;max-width:calc(100% - 16px)!important;max-height:calc(100% - 100px)!important;min-width:0}
 #game[data-panel-open=true] #toast{display:none!important}

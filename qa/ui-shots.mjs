@@ -1,9 +1,9 @@
 // UI review screenshots for the "Lantern storybook HD-2D" skin.
-// usage: node ui-shots.mjs <outPrefix> [WxH ...]   (env PARTS=title,create,world,menu,tabs,talk,board)
+// usage: node ui-shots.mjs <outPrefix> [WxH ...]   (env PARTS=title,create,world,menu,tabs,talk,compact,toast,board)
 import {launch,newPage,seed,open,enterViaLoad,BASE} from './lib.mjs';
 const out=process.argv[2]||'shots/ui';
 const sizes=(process.argv.slice(3).length?process.argv.slice(3):['1280x720']).map(s=>s.split('x').map(Number));
-const PARTS=(process.env.PARTS||'title,create,world,menu,tabs,talk,board').split(',');
+const PARTS=(process.env.PARTS||'title,create,world,menu,tabs,talk,compact,toast,board').split(',');
 const has=p=>PARTS.includes(p);
 const b=await launch();
 const errors=[];
@@ -43,6 +43,15 @@ for(const [w,h] of sizes){
       await page.keyboard.press('Escape');await page.waitForTimeout(250);if(await page.evaluate(()=>document.getElementById('panel').open))await page.click('#close-panel');
     }
     if(has('board')){await page.focus('#world');await page.keyboard.press('e');await page.waitForTimeout(800);await shot(page,`${tag}-board`);await page.keyboard.press('Escape');await page.waitForTimeout(200);}
+    errors.push(...page.errors.map(e=>tag+' '+e));await page.ctx.close();
+  }
+  if(has('compact')||has('toast')){
+    const page=await newPage(b,{w,h});
+    // a resident with nothing to offer: the conversation opens in the small message window
+    await seed(page,{classId:'mage',name:'Rowan Vale',mutate:`const n=s.actors.find(a=>a.id==='wren')||s.actors.find(a=>a.id==='jory');s.player.x=n.x+.8;s.player.y=n.y;n.path=[];n.think=30;`});
+    await open(page);await enterViaLoad(page);await page.waitForTimeout(600);
+    if(has('compact')){await page.focus('#world');await page.keyboard.press('e');await page.waitForTimeout(1200);await shot(page,`${tag}-compact`);await page.keyboard.press('Escape');await page.waitForTimeout(300);if(await page.evaluate(()=>document.getElementById('panel').open))await page.click('#close-panel');}
+    if(has('toast')){await page.click('#hud-menu');await page.waitForTimeout(300);await page.click('#spell',{force:true}).catch(()=>{});await page.evaluate(()=>{const t=document.getElementById('toast'),keep=t.textContent;new MutationObserver(()=>{if(!t.textContent)t.textContent=keep;}).observe(t,{childList:true,characterData:true,subtree:true});});await page.waitForTimeout(500);await page.screenshot({path:`${out}-${tag}-toast.png`});console.log('  saved',`${out}-${tag}-toast.png`);}
     errors.push(...page.errors.map(e=>tag+' '+e));await page.ctx.close();
   }
   if(has('talk')){

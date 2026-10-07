@@ -113,7 +113,7 @@ dialog::backdrop{background:radial-gradient(ellipse at 50% 40%,rgba(10,14,31,.5)
 .cloth-swatch{border:2px solid var(--jr-paper);box-shadow:0 0 0 1px var(--jr-gold-0);border-radius:50%}
 /* One focus language everywhere: a lantern-gold ring */
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--jr-gold-2)!important;outline-offset:2px;box-shadow:0 0 0 4px rgba(10,14,31,.85),0 0 14px rgba(255,207,107,.45)}
-#world:focus-visible{outline-offset:-4px!important;box-shadow:none}
+#world:focus-visible{outline:2px solid rgba(240,207,122,.4)!important;outline-offset:-4px!important;box-shadow:none}
 
 /* ---------------------------------------------------------------- 3 title, starter menu, loading */
 /* Storybook vignette over the living title scene (decorative; never blocks input) */

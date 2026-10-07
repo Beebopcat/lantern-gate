@@ -16,6 +16,8 @@ PREFIX = 'demos/top-secret/lantern-gate/'
 BASE = 'dpl_REDACTED'
 ROLLBACK_KEPT = 'dpl_REDACTED'
 NEVER = {'kokoro-daemon.py'}          # known IndentationError: never ship
+# The repo's audio/ files are NOT the live recordings (smaller stand-ins, e.g. battle.mp3 1.4 MB vs 2.9 MB live): never overlay them.
+SKIP_DIRS = ('audio/',)
 SKIP_SUFFIX = ('.log', '.DS_Store')
 sha = lambda p: hashlib.sha256(open(p, 'rb').read()).hexdigest()
 
@@ -26,7 +28,9 @@ for root, _, names in os.walk(GAME):
     for n in names:
         if n in NEVER or n.endswith(SKIP_SUFFIX): continue
         p = os.path.join(root, n)
-        files.append((os.path.relpath(p, GAME).replace('\\', '/'), p))
+        rel = os.path.relpath(p, GAME).replace('\\', '/')
+        if rel.startswith(SKIP_DIRS): continue
+        files.append((rel, p))
 files.sort()
 changes = []
 for rel, p in files:
@@ -34,7 +38,7 @@ for rel, p in files:
     h = sha(p)
     if key not in prev: changes.append({'path': key, 'kind': 'added', 'after': h, 'src': p})
     elif prev[key]['sha256'] != h: changes.append({'path': key, 'kind': 'modified', 'before': prev[key]['sha256'], 'after': h, 'src': p})
-assert not any(os.path.basename(c['path']) in NEVER for c in changes)
+assert not any(os.path.basename(c['path']) in NEVER or c['path'].startswith(PREFIX + 'audio/') for c in changes)
 
 summary = {'repo': REPO, 'liveBase': BASE, 'repoGameFiles': len(files), 'changed': [{k: v for k, v in c.items() if k != 'src'} for c in changes]}
 if '--list' in sys.argv:

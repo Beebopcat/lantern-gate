@@ -3,6 +3,7 @@
 // foes, Ward pips and Fray glyphs under each foe, the Kindle control, the strip of the next eight turns, the command,
 // skill, item and target menus, and the result screen. Nothing here is saved, rolled or played as sound.
 import * as B from './battle.js';
+import { foeData } from './battle-data.js';
 import { spriteFor, spriteSheet, drawSprite, POSE_FRAMES } from './sprites.js';
 
 // ---------------------------------------------------------------- Fray glyphs
@@ -24,7 +25,7 @@ function glyph(type, cls = '') {
 }
 const typeLabel = t => B.TYPE_INFO[t]?.label || t;
 
-export function createBattleUI({ getState, renderer, E, dist, save, message, hud, stopInput }) {
+export function createBattleUI({ getState, renderer, E, dist, save, message, hud, stopInput, jingle }) {
   let root = null, b = null, busy = false, token = 0, mode = 'menu', pending = null, spend = 0, fast = false;
   let acts = {}, letters = {}, foeIds = [], ro = null, idleTimer = null, lastStrip = [], seenFrays = {};
   const reduced = () => !!(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -560,6 +561,7 @@ export function createBattleUI({ getState, renderer, E, dist, save, message, hud
     const title = r === 'won' ? 'Victory' : r === 'fled' ? 'Escaped' : 'Defeated';
     const text = r === 'won' ? `Victory! +${sm.gold || 0} coins, +${sm.xp || 0} experience${sm.leveled ? ` — level ${sm.level}!` : ''}.` : r === 'fled' ? 'You escaped. The foes will hesitate for a moment.' : 'You have fallen. The wayfarer shrine will call you back in ten seconds.';
     $('.b-banner').textContent = title; root.dataset.result = r; root.dataset.mode = 'over';
+    if (r === 'won') jingle?.('victory');
     for (const en of Object.values(acts)) if (r === 'won' && en.side === 'foe') setStatus(en, 'down');
     const items = Object.entries(sm.items || {}).map(([id, n]) => `<li><span>${esc(B.itemInfo(id).name)}</span><b class="jr-num">×${n}</b></li>`).join('');
     const stat = (k, v) => `<li><span>${k}</span><b class="jr-num">${v}</b></li>`;
@@ -585,6 +587,8 @@ export function createBattleUI({ getState, renderer, E, dist, save, message, hud
 
   return {
     get active() { return !!b; },
+    // true while a boss is among the foes (the score changes to the boss theme)
+    get boss() { return !!b && B.foe(b, getState()).some(e => foeData(e)?.boss); },
     get state() { return b; },
     start(foes) {
       if (b) return;

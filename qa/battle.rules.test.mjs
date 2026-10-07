@@ -112,6 +112,8 @@ console.log('begin');
 { // a fast foe opens the round before the hero
   const s = mk('warrior', null, [['wolf', 'w1', {...TANK, speed: 9}]]); const f = start(s, 5);
   eq(turnsOf(f.first), ['w1', 'player'], 'a fast foe takes its turn first, then the hero is asked'); ok(of(f.first, 'act').length === 1 && f.b.round === 1, 'its blow lands in round 1');
+  const s2 = mk('warrior', null, [['wolf', 'w1', {...TANK, speed: 9, attack: 30}]]); const hp0 = s2.player.hp, f2 = start(s2, 5);
+  ok(f2.first[0].type === 'round' && f2.first[0].hp.player.hp === hp0 && f2.first.at(-1).hp.player.hp < hp0, 'the opening snapshot shows the hero untouched; later events show the blow (so a replay starts from the true opening)');
 }
 // every foe profile builds a battle with its own Ward
 for (const kind of Object.keys(D.FOES)) { const s = mk('warrior', null, [[kind, 'f1', TANK]]); const f = start(s, 3); ok(f.b.st.f1.ward === D.FOES[kind].ward && f.b.st.f1.frays.join() === D.FOES[kind].frays.join(), `${kind}: battle uses its Ward ${D.FOES[kind].ward} and frays`); }

@@ -87,8 +87,9 @@ export function begin(s, foes, ctx = {}, seed = Math.floor(s.elapsed * 1000) + s
   for (const e of foes) { const d = D.foeData(e); b.st[e.id] = { ward: d.ward, maxWard: d.ward, frays: d.frays.slice(), revealed: [], tested: [], staggerUntil: 0, steady: false, slowUntil: 0, markUntil: 0, acts: 0, charging: false, boss: !!d.boss }; }
   b.log.push(foes.length > 1 ? `${foes.length} foes bar the way!` : `${foes[0].name} bars the way!`);
   b.turnOrder = orderFor(b, s, 1); b.cursor = 0;
+  const intro = ev(b, s, 'round', { gained: 0, text: b.log[0] });   // snapshot of the untouched opening, before any foe has acted
   const first = advance(b, s, ctx.now ?? Date.now(), ctx);
-  first.events.unshift(ev(b, s, 'round', { gained: 0, text: b.log[0] }));
+  first.events.unshift(intro);
   if (b.phase === 'over') settle(b, s);
   return first;
 }

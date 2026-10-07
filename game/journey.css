@@ -1,23 +1,7 @@
+/* Layout only. Journey settings and concept-art blocks. The old cinematic intro, tutorial card, hunt and ability bars are
+   hidden in play by minimal-hud.css, so their rules were removed. Paint lives in jrpg-theme.css. */
 [hidden]{display:none!important}
-#journey-intro{animation:none;background:linear-gradient(180deg,#08111c66,#07111c33 40%,#061019dd);display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:clamp(25px,5vh,70px) 6%;transition:opacity .6s;overflow:auto}
-.cinematic-title{animation:title-enter 4s both;transition:opacity 2.5s,transform 2.5s}.cinematic-title.title-departed{opacity:0;transform:translateY(-15px)}#journey-intro.cinematic-out{opacity:0}
-#journey-intro .cinematic-title p{font-size:12px;letter-spacing:.24em}#journey-intro .cinematic-title h2{font-family:Georgia,'Times New Roman',serif;text-shadow:0 2px 30px #000;font-size:clamp(36px,6vw,74px);letter-spacing:.015em}
-.cinematic-story{width:min(790px,100%);padding:20px 24px;background:#081421c9;border:1px solid #ddc49155;border-radius:12px;box-shadow:0 15px 65px #0007}
-#journey-intro .cinematic-caption{font:400 clamp(15px,2vw,18px)/1.75 'Segoe UI',Arial,sans-serif;letter-spacing:0;color:#f1eadb;margin:0;min-height:110px}
-#journey-intro .prologue-status{font:12px/1.5 'Segoe UI',Arial,sans-serif;letter-spacing:0;color:#c1c9cc;margin:12px 0 0}.cinematic-controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}#journey-intro .cinematic-controls button{margin-top:16px;padding:10px 16px;min-height:44px}
-
-
-
-
-#class-abilities{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:7;max-width:95%}#class-abilities button{display:flex;align-items:center;gap:6px;background:#152e3bed;border:1px solid #ceb57b66;border-radius:9px;padding:7px;min-height:50px}#class-abilities .game-icon{width:32px;height:32px}#class-abilities span{display:flex;flex-direction:column;white-space:nowrap;text-align:left}#class-abilities b{font:600 11px 'Segoe UI',Arial,sans-serif}#class-abilities small{font:11px 'Segoe UI',Arial,sans-serif;color:#c7cfc8}#class-abilities kbd{font-size:10px;color:#cfb87d}#class-abilities button:disabled{opacity:.55}
-#tutorial-card{position:absolute;left:15px;top:145px;width:min(290px,calc(100% - 30px));z-index:6;border:1px solid #cab07b77;border-radius:10px;background:#142e3bef;padding:14px;color:#e2e9e8;box-shadow:0 5px 20px #0004}#tutorial-card small{font:10px 'Segoe UI',Arial,sans-serif;letter-spacing:.14em;color:#d7bd89}#tutorial-card strong{display:block;font-size:15px;margin:7px 0}#tutorial-card p{font:12px/1.6 'Segoe UI',Arial,sans-serif;margin:0 0 10px}#tutorial-card div{display:flex;gap:8px}#tutorial-card button{font-size:11px;padding:6px 12px;min-height:32px}
-#hunt-status{position:absolute;top:20px;left:50%;transform:translateX(-50%);max-width:70%;z-index:8;background:#3e1727ed;border:1px solid #b3656d;color:#f3d8cd;border-radius:8px;padding:10px 17px;font:600 13px/1.4 'Segoe UI',Arial,sans-serif;text-align:center;box-shadow:0 0 30px #9c34442e}
-.journey-settings{border-top:1px solid #a2a39366;margin-top:26px;padding-top:18px}.journey-settings p{font-size:14px;line-height:1.6}#network-status{padding:10px;background:#dce5df;border-radius:7px;color:#284b46}.castle-story-art{display:block;width:100%;border-radius:10px;margin-bottom:20px}.bestiary-art{display:block;width:100%;max-height:450px;object-fit:contain;background:radial-gradient(#53616c,#101c29);border-radius:12px}
-@keyframes title-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){#class-abilities b{font-size:10px}#class-abilities .game-icon{width:24px;height:24px}#class-abilities button{padding:6px}#tutorial-card{top:140px;width:235px}#hunt-status{top:125px;max-width:calc(100% - 28px);font-size:12px}#journey-intro{padding:25px 20px}.cinematic-story{padding:15px}.cinematic-controls button{flex:1}#journey-intro .cinematic-caption{font-size:15px;line-height:1.65}.quest-ribbon{bottom:75px}}
-@media(max-width:430px){#class-abilities span{white-space:normal;max-width:80px}#tutorial-card{top:130px;width:210px}#class-abilities kbd{display:none}}
-@media(prefers-reduced-motion:reduce){.cinematic-title,#journey-intro{animation:none!important;transition:none!important}.cinematic-title.title-departed{transform:none}}
-
-.resume-title{position:absolute;top:35%;left:50%;transform:translateX(-50%);pointer-events:none;z-index:10;font:400 clamp(28px,5vw,56px) Georgia,serif;color:#f1dfb5;text-shadow:0 3px 22px #000;white-space:nowrap;animation:resume-title 4.2s both}@keyframes resume-title{0%{opacity:0}25%,60%{opacity:1}100%{opacity:0}}
-.cinematic-title.title-departed{animation:none}#journey-intro:not(.story-playing) .cinematic-title{animation:none}#journey-intro.story-playing .cinematic-title:not(.title-departed){animation:title-enter 4s both}
-@media(prefers-reduced-motion:reduce){.resume-title{animation:resume-title 1.2s both}}
+.journey-settings{margin-top:26px;padding-top:18px}
+.journey-settings p{font-size:14px;line-height:1.6}
+.castle-story-art{display:block;width:100%;margin-bottom:20px}
+.bestiary-art{display:block;width:100%;max-height:450px}

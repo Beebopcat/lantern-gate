@@ -1,9 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a0e1f"><title>The Lands of Skibbidi Toilet</title><link rel="stylesheet" href="rpg.css"><link rel="stylesheet" href="ui-refinements.css"><link rel="stylesheet" href="journey.css"><link rel="stylesheet" href="halloween.css"><link rel="stylesheet" href="illustrated-interface.css"><link rel="stylesheet" href="retro.css"><link rel="stylesheet" href="minimal-hud.css"><link rel="stylesheet" href="starter.css">
-<!-- Lantern storybook skin: shared tokens/primitives and the interface skin load after the legacy layers; agent stylesheets come last so they win ties. -->
-<link rel="stylesheet" href="jrpg-theme.css"><link rel="stylesheet" href="quest.css">
-<link rel="stylesheet" href="battle.css"></head>
-<body><main id="game" data-arriving="true">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a0e1f"><title>The Lands of Skibbidi Toilet</title><link rel="stylesheet" href="jrpg-theme.css"><link rel="stylesheet" href="rpg.css"><link rel="stylesheet" href="ui-refinements.css"><link rel="stylesheet" href="journey.css"><link rel="stylesheet" href="halloween.css"><link rel="stylesheet" href="illustrated-interface.css"><link rel="stylesheet" href="retro.css"><link rel="stylesheet" href="minimal-hud.css"><link rel="stylesheet" href="starter.css">
+<!-- Link order is fixed: the shared theme (tokens, primitives and the Lantern storybook skin) comes first, the older layout sheets follow, and the battle and quest sheets come last. The skin must not depend on this order; see docs in jrpg-theme.css. -->
+<link rel="stylesheet" href="battle.css"><link rel="stylesheet" href="quest.css"></head>
+<body class="jr-skin"><main id="game" data-arriving="true">
 <nav id="starter-menu" aria-label="Start menu" hidden><button type="button" data-starter="new">New Game</button><button type="button" data-starter="load">Load Game</button><button type="button" data-starter="settings">Settings</button></nav>
 
 <div class="viewport"><canvas id="world" tabindex="0" aria-label="Open-world adventure. W A S D or arrow keys move. E interacts. Space attacks. F casts lantern fire. Use Nearby for accessible targets."></canvas>

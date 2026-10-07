@@ -16,6 +16,9 @@ for(const [w,h] of sizes){
     if(has('create')){
       await page.click('#starter-menu [data-starter=new]');await page.waitForSelector('#creation-form');await page.waitForTimeout(1200);
       await shot(page,`${tag}-create`);
+      await page.click('.calling-card[data-id=mage]');await page.click('#stage-turn-left');await page.click('#stage-pose');await page.waitForTimeout(500);
+      await page.evaluate(()=>document.querySelector('.creation-stage')?.scrollIntoView({block:'start'}));await page.waitForTimeout(200);
+      await shot(page,`${tag}-create-mage`);
       await page.click('.calling-card[data-id=ranger]');await page.waitForSelector('.companion-card');await page.waitForTimeout(900);
       await page.click('.companion-card >> nth=1');await page.waitForTimeout(300);
       await page.evaluate(()=>document.querySelector('.calling-cards')?.scrollIntoView({block:'start'}));await page.waitForTimeout(300);

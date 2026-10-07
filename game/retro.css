@@ -1,31 +1,76 @@
-/* A compact, framed 32-bit JRPG interface. Reuses the approved game artwork. */
-:root{--retro-bg:#111b2b;--retro-panel:#182a43;--retro-edge:#7898b4;--retro-bright:#f5e8b8;--retro-muted:#b6c8d4;--reading:"Segoe UI",Arial,sans-serif;--display:Consolas,"Lucida Console",monospace}
-body{background:var(--retro-bg);font-size:14px}button,input,select{font-family:var(--reading)}
-#game{grid-template-rows:58px minmax(0,1fr) 108px 26px;background:#101d2d}
-.masthead{padding:0 18px;background:#14243a;border-bottom:2px solid #627f99;box-shadow:inset 0 -2px #07101c}
-.wordmark{gap:10px;min-width:0}.wordmark h1{font:700 clamp(14px,1.35vw,23px)/1.2 var(--display);letter-spacing:-.3px;color:var(--retro-bright)}.wordmark small{font:10px var(--display);letter-spacing:2px}.gate-mark{font-size:28px}.clock{min-width:140px;margin-right:3px}.clock span{font-size:11px}.masthead button{width:44px;height:44px;min-height:44px;border-radius:2px;border-color:#627f99;background:#203650}
-button{min-height:44px;border-radius:3px;transition:none}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #fff2b3!important;outline-offset:2px}
-.vitals{left:14px;top:14px;padding:9px 12px;border:2px solid #7393a7;border-radius:3px;background:#14253de8;box-shadow:inset 0 0 0 2px #081422,3px 3px #0005;backdrop-filter:none;grid-template-columns:46px 145px;gap:0 9px}.hero-portrait{width:46px;height:60px;border-radius:2px}.vitals strong{font-size:12px}.meter{height:11px}.vitals #level-points{min-height:28px;padding:2px 6px;font-size:10px;pointer-events:auto}.world-status{right:14px;top:14px;width:130px}.world-status canvas{width:112px;height:112px}.world-status button{border-radius:3px;border:2px solid #7898b4;box-shadow:inset 0 0 0 2px #14243a;background:#14243a}.world-status strong{font-size:12px}
-.action-bar{display:grid;grid-template-rows:40px 52px;gap:6px;padding:5px 12px;border-top:2px solid #6a879f;background:#13243c;box-shadow:inset 0 2px #07131e}
-.adventure-tools{display:flex;align-items:center;gap:6px}.action-bar .adventure-tools button{min-width:90px;min-height:36px;height:36px;flex-direction:row;padding:4px 10px;gap:7px;border:1px solid #5b7891;border-radius:2px;background:#223954}.action-bar .adventure-tools .game-icon{width:24px;height:24px}.action-bar .adventure-tools kbd{position:static;font-size:10px;color:#b6c8d4}.pc-control-hint{margin-left:auto;color:#b6c8d4;font-size:12px}
-.retro-tabs{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;min-width:0}.action-bar .retro-tabs button{position:relative;min-width:0;min-height:48px;height:52px;display:flex;flex-direction:row;gap:6px;align-items:center;justify-content:center;padding:5px;border:1px solid #68859e;border-radius:2px;background:#1b304b;color:#e8e7d4;font-size:12px;line-height:1.15;box-shadow:inset 0 1px #9abbcf30}.retro-tabs .game-icon{width:25px;height:25px!important;object-fit:contain}.action-bar .retro-tabs kbd{position:absolute;right:3px;top:2px;font-size:9px;color:#b9cbd6}.action-bar .retro-tabs button[aria-selected=true]{color:#fff2b6;background:#36516b;border:2px solid #f0d693;box-shadow:inset 0 -3px #f0d693}.action-bar .retro-tabs button:hover{background:#304960;border-color:#eed695}
-#panel:not(.creation-dialog){position:fixed;inset:72px 14px 148px auto;margin:0;width:min(740px,66vw);height:auto;max-height:none;border:2px solid var(--retro-edge);border-radius:3px;padding:0;background:var(--retro-panel);color:#eef0e5;box-shadow:inset 0 0 0 3px #081526,6px 6px 0 #07101a99;overflow:hidden}
-#panel:not(.creation-dialog)[open]{display:flex;flex-direction:column}
-
-#panel-body{padding:14px 18px 20px;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-color:#a4b7c3 #142137;scrollbar-width:auto}#panel-body h3{color:#f4e6b5;font-size:16px;margin:12px 0 6px}#panel-body p{font-size:14px;line-height:1.55;margin:9px 0;color:#e1e9e6}#panel-body .subtle,#panel-body small{font:12px/1.45 var(--reading);color:#b8cad3}#panel-body button{min-height:44px;padding:8px 12px;background:#2a4560;color:#f4f0dc;border:1px solid #7898b4;border-radius:2px;font-size:13px}#panel-body button:hover{background:#3b5971}#panel-body button:disabled{opacity:.55}.choices{gap:6px}.choices button{margin:0}.choices{margin:12px 0}.stat-row{flex-wrap:wrap;gap:8px}.item{grid-template-columns:48px 1fr auto;padding:9px 0;border-color:#5c7994}.item .game-icon{width:42px;height:42px}.item small{color:#b6c8d4}.atlas-layout{grid-template-columns:minmax(0,1fr);gap:12px}.atlas-layout canvas{max-width:min(100%,350px)}.atlas-list{max-height:none;overflow:visible}.atlas-list button small{color:#c6d3d7}.life-tabs{gap:6px}.life-tabs button{min-height:44px}.market-grid{gap:10px}.market-grid article,.home-card{background:#263d565e;border-color:#7796aa66;padding:12px}.life-tabs [aria-pressed=true]{background:#486681!important;border-color:#f0d693!important}.help-grid{grid-template-columns:110px 1fr}.help-grid dd{color:#dce7e6}.settings-row{padding:10px 0;border-color:#7796aa55;gap:10px}.settings-row input{min-height:44px}.settings-row select{color:#f4f0dc;background:#213a54;min-height:44px;border:1px solid #7898b4}.subtle a{color:#f4e1a9}
-.achievement-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.achievement{display:flex;gap:10px;padding:12px;background:#132239;border:1px solid #647b91;opacity:.8}.achievement.earned{border-color:#d4ba77;opacity:1;background:#293e50}.achievement-mark{font-size:25px;color:#c6ab6a}.achievement h3{margin-top:0!important}.achievement p{font-size:13px!important}.achievement small{display:block}.skill-tree{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.skill-branch{position:relative;padding:12px;background:#132239;border:1px solid #6c8aa3}.skill-branch h3{font-size:15px!important}.skill-branch>p{font-size:12px!important;min-height:48px}.skill-ranks{list-style:none;margin:18px 0 12px;padding:0;display:grid;gap:6px}.skill-ranks li{position:relative;display:flex;align-items:center;gap:8px;min-height:32px}.skill-ranks li:before{content:"";position:absolute;left:14px;top:-7px;width:2px;height:9px;background:#7c95ab}.skill-ranks li:first-child:before{display:none}.skill-ranks li>span{z-index:1;display:grid;place-items:center;width:30px;height:30px;border:1px solid #64829d;background:#24384c;color:#a9bbc8;font:13px var(--display)}.skill-ranks .learned>span{background:#665839;color:#fff2b6;border-color:#d9c385}.skill-ranks .next>span{border:2px solid #f1e6b2;color:#f1e6b2}.skill-branch>button{width:100%;padding:7px!important}.disabled-reason{display:block;margin-top:7px;min-height:18px}.ability-grid{display:grid;grid-template-columns:1fr;gap:10px}.ability-card,.lantern-ability{padding:12px;border:1px solid #718ca3;background:#132239}.character-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}.character-stats>div{background:#142338;padding:10px;border-left:2px solid #8da5b7}.character-stats dt{font-size:12px;color:#b6c8d4}.character-stats dd{margin:4px 0 0;font-size:17px;color:#f6e8be}.character-summary{display:flex;gap:18px;align-items:center}.character-summary canvas{width:140px;height:140px;border:2px solid #7898b4;border-radius:2px}.world-conditions-status{font-family:var(--display)!important;color:#f4e1a9!important}.world-option{display:grid;grid-template-columns:minmax(105px,1fr) minmax(140px,1fr);gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #68849b55}.world-option select,.world-option input{width:100%;min-height:44px;padding:8px;color:#f4f0dc;background:#213a54;border:1px solid #7898b4;border-radius:2px;font-size:14px}.world-option input:disabled{opacity:.5}.panel-actions{position:sticky;bottom:-20px;display:flex;justify-content:flex-end;gap:8px;padding:12px 0;background:#182a43;border-top:1px solid #7898b4;z-index:2}.panel-actions button{margin:0!important}.panel-actions button[type=submit]{background:#536b63!important;border-color:#f0d693!important}.panel-actions #conditions-natural{margin-right:auto!important}#conditions-error{color:#ffdda1!important;min-height:21px}
-footer{background:#101d30;color:#b3c7d3;border-top:1px solid #68859f;padding:0 14px}footer button{min-height:24px;font-size:11px}#toast{border:2px solid #b5a470;border-radius:3px;background:#14283e;bottom:140px;font-size:14px}.quest-ribbon{background:#14253ddb;border-color:#e5d391;border-radius:0;padding:9px 12px}.quest-ribbon p{font-size:12px}.interaction-hint{border-radius:3px}.direction-pad button{min-height:44px}.direction-pad{grid-template-columns:repeat(3,44px);grid-template-rows:44px 44px}
-@media(max-width:1150px){#game{grid-template-rows:58px minmax(0,1fr) 155px 26px}.action-bar{grid-template-rows:40px 100px}.retro-tabs{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,47px)}.action-bar .retro-tabs button{height:47px;font-size:12px}.pc-control-hint{font-size:11px}.wordmark h1{max-width:330px}.world-status{width:106px}.world-status canvas{width:90px;height:90px}#panel:not(.creation-dialog){bottom:194px;width:66vw}.skill-tree{gap:8px}.skill-branch{padding:8px}.skill-ranks li{gap:5px}.skill-ranks small{font-size:10px!important}.achievement-grid{grid-template-columns:1fr}#toast{bottom:186px}}
-@media(max-width:700px){#game{grid-template-rows:62px minmax(0,1fr) 155px 26px}.masthead{padding:0 7px;gap:5px}.wordmark h1{font-size:13px;max-width:190px}.wordmark small{font-size:8px;letter-spacing:1px}.gate-mark{display:none}.clock{min-width:0;width:110px}.clock span{font-size:9px;line-height:1.2}.masthead button{width:40px;min-width:40px}.action-bar{padding:4px 6px;gap:5px}.action-bar .adventure-tools button{min-width:64px;font-size:10px;padding:4px}.adventure-tools kbd,.pc-control-hint{display:none!important}.retro-tabs{gap:3px}.action-bar .retro-tabs button{gap:3px;font-size:10px;padding:3px}.retro-tabs .game-icon{width:19px!important;height:19px!important}.retro-tabs kbd{display:none}.vitals{left:7px;top:9px;grid-template-columns:34px 113px;padding:6px;gap:6px}.hero-portrait{width:34px;height:46px}.world-status{right:7px;top:9px;width:88px}.world-status canvas{width:72px;height:72px}.world-status strong{font-size:10px}.world-status small{font-size:9px}#panel:not(.creation-dialog){inset:70px 6px 192px 6px;width:auto}#panel-body{padding:12px}#panel:not(.creation-dialog) h2{font-size:20px;padding:0 12px 9px}.skill-tree{grid-template-columns:1fr}.skill-ranks{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.skill-ranks li{flex-direction:column}.skill-ranks li:before{display:none}.skill-branch>p{min-height:0}.character-summary canvas{width:100px;height:100px}.character-stats{gap:6px}.world-option{grid-template-columns:1fr 1.35fr}.panel-actions{bottom:-12px;flex-wrap:wrap}.panel-actions button{padding:8px!important;font-size:12px!important}.market-grid{grid-template-columns:1fr}.quest-ribbon{left:7px;max-width:60%;bottom:12px}.help-grid{grid-template-columns:80px 1fr}.direction-pad{bottom:8px;right:7px}.interaction-hint{display:none}.item{grid-template-columns:36px 1fr}.item>button{grid-column:2;justify-self:start}.item .game-icon{width:32px;height:32px}}
-@media(max-height:560px) and (min-width:701px){#game{grid-template-rows:48px minmax(0,1fr) 108px 22px}.wordmark h1{font-size:16px}.clock span{font-size:9px}.masthead button{height:40px}.action-bar{grid-template-rows:40px 52px}.retro-tabs{grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:52px}.action-bar .retro-tabs button{height:52px;font-size:10px;flex-direction:column;gap:1px}.retro-tabs .game-icon{width:20px!important;height:20px!important}#panel:not(.creation-dialog){top:54px;bottom:138px}#toast{bottom:140px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-/* Every actionable HUD control retains a 44px target, including narrow screens. */
-#game{grid-template-rows:58px minmax(0,1fr) 116px 44px}
-.action-bar{grid-template-rows:44px 52px}.action-bar .adventure-tools button{height:44px;min-height:44px}
-.vitals #level-points,footer button,#class-abilities button,#tutorial-card button,#route-status button{min-height:44px;min-width:44px}
-footer button{padding:8px}#panel:not(.creation-dialog){bottom:168px}
-#journey-intro .cinematic-title h2{max-width:90vw;font-size:clamp(27px,4.6vw,65px);line-height:1.12;overflow-wrap:normal;margin-inline:auto}
-.resume-title{width:90%;max-width:1100px;text-align:center;white-space:normal;line-height:1.2}
-@media(max-width:1150px){#game{grid-template-rows:58px minmax(0,1fr) 164px 44px}.action-bar{grid-template-rows:44px 100px}#panel:not(.creation-dialog){bottom:216px}#toast{bottom:216px}}
-@media(max-width:700px){#game{grid-template-rows:62px minmax(0,1fr) 164px 44px}.masthead button{width:44px;min-width:44px;height:44px;flex:none}.wordmark{flex:1}.wordmark h1{max-width:100%}.clock{width:74px;flex:none}.clock span{display:none}.adventure-tools{display:flex!important}#panel:not(.creation-dialog){bottom:216px}.world-option{grid-template-columns:1fr}#context{display:none}#saved{white-space:normal}#journey-intro .cinematic-title h2{font-size:30px}}
-@media(max-height:560px) and (min-width:701px){#game{grid-template-rows:48px minmax(0,1fr) 116px 44px}.masthead button{height:44px}#panel:not(.creation-dialog){bottom:168px}.action-bar{grid-template-rows:44px 52px}}
+/* Layout only. Structure of panel contents (skill tree, achievements, character sheet, world options, forms).
+   The old bottom action bar was folded into the journey book (see jrpg-theme.css and minimal-hud.css). */
+button{padding:9px 13px;line-height:1.35;font-weight:600;min-height:44px}
+#panel-body{min-height:0;overflow:auto;overscroll-behavior:contain}
+.choices{display:flex;flex-wrap:wrap;clear:both;margin-top:18px;gap:6px;margin:12px 0}
+.choices button{padding:9px 12px;text-align:left;font-size:14px;margin:0}
+.stat-row{display:flex;padding:10px 0;font-weight:500;font-size:13px;line-height:1.6;padding-bottom:16px;flex-wrap:wrap;gap:8px}
+.item{display:flex;align-items:center;gap:17px;grid-template-columns:48px 1fr auto;padding:9px 0}
+.item .game-icon{width:42px;height:42px}
+.atlas-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.atlas-layout canvas{width:100%;height:auto;max-width:min(100%,350px)}
+.atlas-list{padding-right:5px;max-height:none;overflow:visible}
+.life-tabs{display:flex;flex-wrap:wrap;padding-bottom:12px;gap:6px}
+.life-tabs button{font-weight:600;font-size:13px;padding:11px 14px;min-height:44px}
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.market-grid article,.home-card{margin-bottom:10px;padding:12px}
+.help-grid{display:grid;gap:9px;font-size:13px;line-height:1.5;grid-template-columns:110px 1fr}
+.settings-row{display:flex;align-items:center;justify-content:space-between;min-height:78px;padding:10px 0;gap:10px}
+.settings-row input{width:160px;min-height:44px}
+.settings-row select{max-width:290px;padding:10px 12px;font-size:14px;min-height:44px}
+.achievement-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.achievement{display:flex;gap:10px;padding:12px}
+.achievement-mark{font-size:25px}
+.achievement h3{margin-top:0!important}
+.achievement p{font-size:13px!important}
+.achievement small{display:block}
+.skill-tree{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.skill-branch{position:relative;padding:12px}
+.skill-branch h3{font-size:15px!important}
+.skill-branch>p{font-size:12px!important;min-height:48px}
+.skill-ranks{list-style:none;margin:18px 0 12px;padding:0;display:grid;gap:6px}
+.skill-ranks li{position:relative;display:flex;align-items:center;gap:8px;min-height:32px}
+.skill-ranks li:before{content:"";position:absolute;left:14px;top:-7px;width:2px;height:9px}
+.skill-ranks li:first-child:before{display:none}
+.skill-ranks li>span{z-index:1;display:grid;place-items:center;width:30px;height:30px;font-size:13px}
+.skill-branch>button{width:100%;padding:7px!important}
+.disabled-reason{display:block;margin-top:7px;min-height:18px}
+.ability-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.ability-card,.lantern-ability{padding:12px}
+.character-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+.character-stats>div{padding:10px}
+.character-stats dt{font-size:12px}
+.character-stats dd{margin:4px 0 0;font-size:17px}
+.character-summary{display:flex;gap:18px;align-items:center}
+.character-summary canvas{width:140px;height:140px}
+.world-option{display:grid;grid-template-columns:minmax(105px,1fr) minmax(140px,1fr);gap:10px;align-items:center;padding:12px 0}
+.world-option select,.world-option input{width:100%;min-height:44px;padding:8px;font-size:14px}
+.panel-actions{position:sticky;bottom:-20px;display:flex;justify-content:flex-end;gap:8px;padding:12px 0;z-index:2}
+.panel-actions button{margin:0!important}
+.panel-actions #conditions-natural{margin-right:auto!important}
+#conditions-error{min-height:21px}
+@media(max-width:1150px){
+  .skill-tree{gap:8px}
+  .skill-branch{padding:8px}
+  .skill-ranks li{gap:5px}
+  .skill-ranks small{font-size:10px!important}
+  .achievement-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  #panel-body{padding:12px}
+  .skill-tree{grid-template-columns:1fr}
+  .skill-ranks{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .skill-ranks li{flex-direction:column}
+  .skill-ranks li:before{display:none}
+  .skill-branch>p{min-height:0}
+  .character-summary canvas{width:100px;height:100px}
+  .character-stats{gap:6px}
+  .world-option{grid-template-columns:1fr}
+  .panel-actions{bottom:-12px;flex-wrap:wrap}
+  .panel-actions button{padding:8px!important;font-size:12px!important}
+  .market-grid{grid-template-columns:1fr}
+  .help-grid{grid-template-columns:80px 1fr}
+  .item{grid-template-columns:36px 1fr}
+  .item>button{grid-column:2;justify-self:start}
+  .item .game-icon{width:32px;height:32px}
+}

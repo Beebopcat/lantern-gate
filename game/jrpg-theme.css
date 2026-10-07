@@ -1,7 +1,14 @@
 /* Lantern Gate "storybook HD-2D" interface theme: shared tokens, primitives and the interface skin.
    Original design for this project. Other stylesheets use the variables below (always with a fallback).
    Sections: 0 tokens · 1 primitives · 2 base · 3 title & starter · 4 HUD · 5 journey book (menu) · 6 panel window
-             7 panel contents · 8 compact message window · 9 creation screen · 10 responsive · 11 reduced motion */
+             7 panel contents · 8 compact message window · 9 creation screen · 10 responsive · 11 reduced motion
+
+   CASCADE POLICY. This file is linked FIRST (index.html). The older sheets (rpg, ui-refinements, journey, halloween,
+   illustrated-interface, retro, minimal-hud, starter) are layout-only: they set sizes, positions and flow but never colours,
+   borders, type faces, shadows or other paint, so nothing there can beat this skin by source order. quest.css and battle.css
+   are linked last and add their own parts on top of the tokens and primitives below.
+   Rules here that must win by specificity use ids (#panel, #hud-menu-surface, ...) or the body.jr-skin class; keep it that way.
+   Check with qa/skin-diff.mjs (computed styles with the theme first versus last must be identical). */
 @font-face{font-family:"Pixelify Sans";font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/pixelify-sans-latin-400-normal.woff2) format("woff2")}
 @font-face{font-family:"Pixelify Sans";font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/pixelify-sans-latin-700-normal.woff2) format("woff2")}
 
@@ -84,10 +91,27 @@ canvas.jr-sprite,.jr-sprite{image-rendering:pixelated;image-rendering:crisp-edge
 .jr-sr{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important}
 
 /* ---------------------------------------------------------------- 2 base */
-body{background:var(--jr-ink-0)}
-:root{scrollbar-color:var(--jr-gold-0) var(--jr-ink-0)}
+/* The page itself is always dark (no white flashes, dark scrollbars and native controls). */
+:root{color-scheme:dark;background:var(--jr-ink-0);scrollbar-color:var(--jr-gold-0) var(--jr-ink-0)}
+body{margin:0;background:var(--jr-ink-0);color:var(--jr-paper);font:14px/1.5 var(--jr-body);letter-spacing:.01em}
 ::selection{background:rgba(240,207,122,.35);color:#fff}
-/* One focus language everywhere: a lantern-gold ring (overrides the older pale outline) */
+/* Generic fallbacks at tag specificity: any control without a dedicated rule below still looks like part of the book. */
+button,input,select,textarea{font:inherit;letter-spacing:inherit}
+button{font-weight:600;line-height:1.35;color:var(--jr-paper);cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--jr-ink-2);border:1px solid var(--jr-ink-4);border-radius:4px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35)}
+button:hover:not(:disabled){border-color:var(--jr-gold-1);background:var(--jr-band),var(--jr-ink-3);color:var(--jr-gold-3)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:saturate(.5)}
+select,textarea,input:not([type=range],[type=checkbox],[type=radio],[type=file]){color:var(--jr-paper);background:var(--jr-ink-0);border:1px solid var(--jr-gold-0);border-radius:4px}
+select:disabled,input:disabled,textarea:disabled{opacity:.5;cursor:not-allowed}
+select option,select optgroup{background:var(--jr-ink-1);color:var(--jr-paper)}
+input[type=range]{accent-color:var(--jr-gold-1)}
+a{color:var(--jr-gold-2);text-underline-offset:3px}
+kbd{font-family:var(--jr-pixel)}
+dialog{color:var(--jr-paper);font-family:var(--jr-body);background:var(--jr-window-fill);border:2px solid var(--jr-gold-1);border-radius:6px}
+dialog::backdrop{background:radial-gradient(ellipse at 50% 40%,rgba(10,14,31,.5),rgba(4,6,14,.86))}
+.game-control-art{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0)),var(--jr-ink-1);border:1px solid var(--jr-gold-0);border-radius:4px;color:var(--jr-gold-2)}
+.game-icon{border-radius:4px}
+.cloth-swatch{border:2px solid var(--jr-paper);box-shadow:0 0 0 1px var(--jr-gold-0);border-radius:50%}
+/* One focus language everywhere: a lantern-gold ring */
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--jr-gold-2)!important;outline-offset:2px;box-shadow:0 0 0 4px rgba(10,14,31,.85),0 0 14px rgba(255,207,107,.45)}
 #world:focus-visible{outline-offset:-4px!important;box-shadow:none}
 
@@ -115,7 +139,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* Character plate (bottom centre): sprite bust, name and level, segmented HP / MP gauges, a thin XP line and the purse. */
 .vitals{display:grid!important;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:0 8px;padding:5px 9px 6px 5px;border:1px solid var(--jr-gold-1);border-radius:5px;backdrop-filter:none;
   background:var(--jr-window-fill);box-shadow:inset 0 0 0 1px var(--jr-ink-0),inset 0 0 0 2px rgba(240,207,122,.18),0 3px 0 rgba(0,0,0,.35),0 8px 18px rgba(3,5,14,.5)}
-.vitals .hero-portrait{grid-row:auto;display:block;width:44px;height:44px;border-radius:3px;object-fit:none;background:radial-gradient(circle at 50% 30%,#3a4682,var(--jr-ink-0) 75%);border:1px solid var(--jr-gold-0);box-shadow:inset 0 0 0 1px #000}
+.vitals .hero-portrait{grid-row:auto;display:block;width:44px;height:44px;border-radius:3px;object-fit:contain;background:radial-gradient(circle at 50% 30%,#3a4682,var(--jr-ink-0) 75%);border:1px solid var(--jr-gold-0);box-shadow:inset 0 0 0 1px #000}
 .vitals .vitals-main{display:block;min-width:0}
 .vitals #hero-name{display:block;margin:0 0 2px;padding-right:58px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:600 13px/1.2 var(--jr-display);font-variant:small-caps;letter-spacing:.05em;color:var(--jr-paper);text-shadow:0 1px 0 #000}
 .vitals #hero-name small{margin-left:5px;font:700 10px/1 var(--jr-pixel);letter-spacing:.06em;color:var(--jr-gold-2);font-variant:normal}
@@ -266,9 +290,14 @@ dialog#panel:not(.creation-dialog):not([data-compact=true]) #panel-body{flex:1 1
 #panel-body select:hover,#panel-body input:hover{border-color:var(--jr-gold-1)}
 #panel-body input[type=range]{accent-color:var(--jr-gold-1);min-height:44px}
 #panel-body output{font:700 12px var(--jr-pixel);color:var(--jr-gold-2);margin-left:6px}
-/* stat line (satchel, journal) */
-#panel-body .stat-row{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;padding:0 0 10px;border:0;border-bottom:1px solid var(--jr-line-soft);font:12px var(--jr-body);color:var(--jr-paper)}
-#panel-body .stat-row>span{padding:3px 8px;font:700 11px/1.4 var(--jr-pixel);letter-spacing:.04em;color:var(--jr-gold-3);background:var(--jr-ink-0);border:1px solid var(--jr-gold-0);border-radius:3px}
+/* stat line: the satchel header (coins, level, mana, weapon) as four pixel-numeral chips, each with a coloured lantern diamond */
+#panel-body .stat-row{display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 12px;padding:0 0 12px;border:0;border-bottom:1px solid var(--jr-line-soft);font:12px var(--jr-body);color:var(--jr-paper)}
+#panel-body .stat-row>span{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:3px 11px 3px 9px;font:700 12px/1.3 var(--jr-pixel);letter-spacing:.05em;color:var(--jr-gold-3);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--jr-ink-0);border:1px solid var(--jr-gold-0);border-radius:3px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.4)}
+#panel-body .stat-row>span::before{content:"";flex:none;width:7px;height:7px;transform:rotate(45deg);background:var(--jr-gold-2);box-shadow:0 0 7px rgba(255,207,107,.55)}
+#panel-body .stat-row>span:nth-child(2)::before{background:var(--jr-leaf);box-shadow:0 0 7px rgba(127,209,139,.5)}
+#panel-body .stat-row>span:nth-child(3)::before{background:var(--jr-mp);box-shadow:0 0 7px rgba(95,156,240,.6)}
+#panel-body .stat-row>span:nth-child(4)::before{background:var(--jr-ember);box-shadow:0 0 7px rgba(232,112,79,.55)}
 /* inventory and shop lists: item cards with framed icon slots; two per row when there is room */
 #panel-body:has(>.item){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 8px;align-content:start}
 #panel-body:has(>.item)>:not(.item){grid-column:1/-1}
@@ -494,7 +523,7 @@ dialog#panel.creation-dialog #panel-title::after{transform:scaleX(-1)}
 /* companion choice */
 #panel.creation-dialog #companion-picker{margin:0 0 16px}
 #panel.creation-dialog .companion-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#panel.creation-dialog #panel-body .companion-card{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:10px;row-gap:3px;align-items:start;min-width:0;margin:0;padding:8px 10px 8px 8px;text-align:left;color:var(--jr-paper);
+#panel.creation-dialog #panel-body .companion-card{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:10px;row-gap:3px;align-items:start;min-width:0;margin:0;padding:8px 10px 8px 8px;text-align:left;color:var(--jr-paper);
   background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 40%),var(--jr-ink-1);border:1px solid var(--jr-ink-4);border-radius:6px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}
 #panel.creation-dialog #panel-body .companion-card::before{left:-7px;top:44px;width:10px;height:10px;margin-top:0}
 #panel.creation-dialog #panel-body .companion-card:hover{border-color:var(--jr-gold-0);background:linear-gradient(180deg,rgba(240,207,122,.08),rgba(255,255,255,0) 50%),var(--jr-ink-2);color:var(--jr-paper)}
@@ -612,6 +641,7 @@ dialog#panel.creation-dialog #panel-title::after{transform:scaleX(-1)}
 
 /* ---------------------------------------------------------------- 11 reduced motion */
 @media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   .jr-btn::before,.jr-bar>i,#starter-menu button,#starter-menu button::before,#hud-menu::before,#hud-menu-surface button::before,#panel-body button,#panel-body button::before,.calling-emblem,.vitals progress::-webkit-progress-value{transition:none!important}
   #loading::before{animation:none}
   .creation-dialog #panel-body .calling-card:hover{transform:none}

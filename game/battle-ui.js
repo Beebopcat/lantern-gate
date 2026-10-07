@@ -28,7 +28,12 @@ export function createBattleUI({ getState, renderer, E, dist, save, message, hud
   let root = null, b = null, busy = false, token = 0, mode = 'menu', pending = null, spend = 0, fast = false;
   let acts = {}, letters = {}, foeIds = [], ro = null, idleTimer = null, lastStrip = [], seenFrays = {};
   const reduced = () => !!(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const wait = ms => new Promise(r => { if (fast) return r(); setTimeout(r, reduced() ? Math.min(ms, 50) : ms); });
+  // Every pause in the story goes through here. dataset.waited totals the delay asked for (tests read it: with reduced motion each pause is at most 50 ms).
+  const wait = ms => new Promise(r => {
+    const eff = fast ? 0 : reduced() ? Math.min(ms, 50) : ms;
+    if (root) root.dataset.waited = String((Number(root.dataset.waited) || 0) + eff);
+    if (!eff) return r(); setTimeout(r, eff);
+  });
   const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const $ = sel => root.querySelector(sel);
   const $$ = sel => [...root.querySelectorAll(sel)];

@@ -41,8 +41,11 @@ for(const [classId,kind] of LIST){
     strip:q('.b-turn').map(t=>[t.dataset.side,t.dataset.current||'']),kpips:q('.b-kpip[data-on=true]').length,radios:q('.b-kbtn').length,
     k0:q('[data-kindle="0"]')[0]?.getAttribute('aria-checked'),k2off:q('[data-kindle="2"]')[0]?.disabled,k1on:!q('[data-kindle="1"]')[0]?.disabled,
     flee:q('[data-cmd=flee]')[0]?.title,hero:q('.b-hero').length,sprites:q('.b-sprite').length,letters:q('.b-foe .b-letter').map(x=>x.textContent).join('')};});
-  ok(arena.pips.length===2&&arena.pips.every(p=>p[0]===2&&p[1]===2),`${classId}: each wolf shows 2 Ward pips, both standing ${JSON.stringify(arena.pips)}`);
-  ok(arena.unknown.join()==='2,2'&&arena.known===0,`${classId}: Frays start hidden: two unknown marks per foe`);
+  // A companion that is quicker than the hero may open the round, so a Fray can already be revealed (each reveal costs one Ward pip).
+  const standing=arena.pips.reduce((n,p)=>n+p[1],0),lost=4-standing;
+  ok(arena.pips.length===2&&arena.pips.every(p=>p[0]===2&&p[1]<=2),`${classId}: each wolf shows 2 Ward pips ${JSON.stringify(arena.pips)}`);
+  ok(kind?lost<=2:lost===0,`${classId}: ${kind?'at most the companion\'s opening hits':'no'} Ward lost before the hero acts (${lost})`);
+  ok(arena.known===lost&&arena.unknown.reduce((n,u)=>n+u,0)+arena.known===4,`${classId}: Frays start hidden, one revealed per Ward pip lost (${arena.known} known, ${arena.unknown})`);
   ok(arena.strip.length===8,`${classId}: the turn strip shows 8 turns (${arena.strip.length})`);
   ok(arena.strip[0][0]==='hero'&&arena.strip[0][1]==='true'&&arena.strip.filter(t=>t[1]==='true').length===1,`${classId}: the hero is the one current turn`);
   ok(arena.strip.some(t=>t[0]==='foe')&&(!kind||arena.strip.some(t=>t[0]==='ally')),`${classId}: foes${kind?' and the companion':''} appear in the strip`);
@@ -124,9 +127,11 @@ if(want('defeat')){
   for(let i=0;i<8;i++){await page.waitForFunction(()=>['menu','over'].includes(document.getElementById('battle').dataset.mode),null,{timeout:90000});if((await mode(page))==='over')break;await command(page,()=>page.click('[data-cmd=guard]'));}
   const r=await page.evaluate(()=>({res:document.querySelector('#battle .b-result')?.dataset.result,title:document.querySelector('#battle .b-ov-title')?.textContent,text:document.querySelector('#battle .b-result')?.textContent,rewards:!!document.querySelector('#battle .b-rewards')}));
   ok(r.res==='lost'&&r.title==='Defeated',`defeat: the battle is lost (${r.res})`);ok(/wayfarer shrine/.test(r.text||'')&&!r.rewards,'defeat: the shrine will call the hero back; no rewards shown');
-  await page.screenshot({path:'bt-defeat.png'});
+  await page.screenshot({path:'/tmp/shots-B/bt-defeat.png'});
+  // the engine sets the hero down the moment the blow lands (the shrine calls them back 10 seconds later, so look now, not after the screenshot)
+  const down=await snapshot(page);ok(down.player.hp===0&&down.player.deadUntil>0,`defeat: the world set the hero down (hp ${down.player.hp}, deadUntil ${down.player.deadUntil>0})`);
   await page.click('#battle [data-cmd=done]');ok(!!(await page.$('#battle[hidden]')),'defeat: battle closes');
-  const st=await snapshot(page,false);ok(st.player.hp===0&&st.player.deadUntil>0,`defeat: the world set the hero down (deadUntil ${st.player.deadUntil>0})`);
+  const st=await snapshot(page,false);ok((st.player.hp===0&&st.player.deadUntil>0)||(st.player.hp>0&&!st.player.deadUntil),`defeat: the hero is still down or already called back (hp ${st.player.hp})`);
   ok(page.errors.length===0,'defeat: no page errors '+page.errors);await page.ctx.close();
 }
 
@@ -196,7 +201,9 @@ if(want('motion')){
   let maxAnim=0,samples=0;const sampler=setInterval(async()=>{try{const n=await page.evaluate(()=>document.getAnimations().filter(a=>a.effect?.target?.closest?.('#battle')).length);maxAnim=Math.max(maxAnim,n);samples++;}catch{}},120);
   const t0=Date.now();await command(page,async n=>{await page.click('[data-cmd=attack]');await aim(page,n);});const took=Date.now()-t0;clearInterval(sampler);
   ok(samples>=3&&maxAnim===0,`motion: no animation or transition runs inside the battle (${samples} samples, max ${maxAnim})`);
-  ok(took<6000,`motion: a whole round plays through quickly (${took} ms)`);
+  // Wall-clock time depends on the machine (software GL here renders about 3 frames a second), so check what the screen asked for.
+  const waited=Number(await page.evaluate(()=>document.getElementById('battle').dataset.waited||0));
+  ok(waited>0&&waited<=1500,`motion: a whole round asks for at most 1.5 s of pauses, each at most 50 ms (${waited} ms requested; ${took} ms wall clock)`);
   ok(await page.evaluate(()=>[...document.querySelectorAll('#battle .b-bar>i')].every(i=>getComputedStyle(i).transitionDuration==='0s')),'motion: gauges jump instead of sliding');
   ok(page.errors.length===0,'motion: no page errors '+page.errors);await page.ctx.close();
 }

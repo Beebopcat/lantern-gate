@@ -128,8 +128,9 @@ if(want('defeat')){
   const r=await page.evaluate(()=>({res:document.querySelector('#battle .b-result')?.dataset.result,title:document.querySelector('#battle .b-ov-title')?.textContent,text:document.querySelector('#battle .b-result')?.textContent,rewards:!!document.querySelector('#battle .b-rewards')}));
   ok(r.res==='lost'&&r.title==='Defeated',`defeat: the battle is lost (${r.res})`);ok(/wayfarer shrine/.test(r.text||'')&&!r.rewards,'defeat: the shrine will call the hero back; no rewards shown');
   await page.screenshot({path:'/tmp/shots-B/bt-defeat.png'});
-  // the engine sets the hero down the moment the blow lands (the shrine calls them back 10 seconds later, so look now, not after the screenshot)
-  const down=await snapshot(page);ok(down.player.hp===0&&down.player.deadUntil>0,`defeat: the world set the hero down (hp ${down.player.hp}, deadUntil ${down.player.deadUntil>0})`);
+  // The engine sets the hero down the moment the blow lands and logs it; the shrine calls them back 10 seconds later, and a slow
+  // machine can replay the story for longer than that, so the log (not the current hp) is the proof that the hero fell.
+  const down=await snapshot(page);ok(down.log.some(l=>/You have fallen/.test(l.text)),`defeat: the world logged that the hero fell (hp now ${down.player.hp})`);
   await page.click('#battle [data-cmd=done]');ok(!!(await page.$('#battle[hidden]')),'defeat: battle closes');
   const st=await snapshot(page,false);ok((st.player.hp===0&&st.player.deadUntil>0)||(st.player.hp>0&&!st.player.deadUntil),`defeat: the hero is still down or already called back (hp ${st.player.hp})`);
   ok(page.errors.length===0,'defeat: no page errors '+page.errors);await page.ctx.close();

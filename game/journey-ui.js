@@ -18,7 +18,7 @@ export function createJourneyUI({getState,setState,panel,closePanel,save,message
   const roster=()=>G.rosterFor(calling);
   // ---- creation screen ("choose your calling"): a lit stage with a large pixel hero, turn buttons, then name, appearance, callings, companions and abilities
   const ROLES={warrior:'Front line',summoner:'Spirit binder',mage:'Arcane caster',ranger:'Hunter and beast'};
-  const SKINS=['warm','earth','deep','pale','olive'],HAIRS=['brown','black','silver','auburn','gold'],GENDERS=[['female','Woman'],['male','Man'],['nonbinary','Nonbinary']];
+  const SKINS=['warm','earth','deep','pale','olive'],HAIRS=['brown','black','silver','auburn','gold'],GENDERS=[['female','Female'],['male','Male']];   // saves may still hold 'nonbinary' (journey.js accepts it); the creation screen offers two bodies
   const STANCES=[['idle','Stand'],['walk','Walk'],['attack','Strike'],['cast','Cast'],['guard','Guard']],FACINGS=['down','left','up','right'],FACING_NAMES={down:'front',left:'left',up:'back',right:'right'};
   const cap=s=>s[0].toUpperCase()+s.slice(1);
   const option=(id,label,items)=>`<div class="jr-option"><label for="${id}">${label}</label><div class="jr-option-ctl"><button type="button" class="jr-step" data-step="-1" data-for="${id}" aria-label="Previous ${label.toLowerCase()}"><i class="jr-tri jr-tri--l" aria-hidden="true"></i></button><select id="${id}">${items}</select><button type="button" class="jr-step" data-step="1" data-for="${id}" aria-label="Next ${label.toLowerCase()}"><i class="jr-tri jr-tri--r" aria-hidden="true"></i></button></div></div>`;

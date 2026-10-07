@@ -166,7 +166,7 @@ export function interact(s,id,now=Date.now(),action='inspect'){if(PROPS.find(p=>
  if(o.type==='door'){s.doors[id]=s.elapsed+5;return {text:o.name+'. The door opens.'};}
  if(o.type==='chest'||o.type==='barrels'){if(s.opened[id])return {text:'The container is empty.'};s.opened[id]=true;add(s,'bread',2);add(s,'tonic');p.gold+=5;return {text:'Inside: two loaves, a tonic, and five coins.'};}
  if(o.type==='bed'){if(s.enemies.some(e=>!e.deadUntil&&e.map===p.map&&dist(e,p)<12))return {text:'It is not safe to rest while enemies are nearby.'};p.hp=p.maxHp;p.mp=p.maxMp;G.restore(s,true);s.clock+=60;return {text:'You rest for an hour. Health and mana restored.'};}
- if(o.type==='well'){p.mp=Math.min(p.maxMp,p.mp+10);return {text:'Cool water and a moment of quiet restore ten focus.'};}
+ if(o.type==='well'){p.mp=Math.min(p.maxMp,p.mp+10);return {text:'Cool water and a moment of quiet restore ten mana.'};}
  if(o.type==='landmark'||o.type==='grave')return {dialog:'book',id,text:o.text};
  if(o.type==='table'){if(s.opened[id])return {text:'A table set for the next meal.'};s.opened[id]=true;add(s,'bread');return {text:'The host offers you a loaf for the road.'};}
  if(o.type==='bookcase')return {dialog:'book',id,text:o.text||`${TOWNS.find(t=>t.id===BUILDINGS_TOWN(o))?.rumor||'A ledger records births, harvests, and the names of people sheltered here.'}\n\nThe roadwarden’s hand adds: “Dawn wakes. Tide remembers. Night keeps. A light is a promise to bring someone home.”`};

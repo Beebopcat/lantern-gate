@@ -23,7 +23,9 @@ console.log('static: link order, skin class, wording');
     }
   }
   // Known upstream string in engine.js (not owned by the skin work): reported to the lead, shown as a warning unless STRICT=1.
-  const upstream=bad.filter(x=>/^engine\.js: Cool water and a moment of quiet restore ten focus/.test(x)),rest=bad.filter(x=>!upstream.includes(x));
+  // Story prose may use the ordinary word "hungry" (a narrated, hash-bound harbor line and one story about a loaf); the rule is about the hunger mechanic and the Nourishment stat.
+  const prose=bad.filter(x=>/a safe light from a hungry one|hungry stranger would know/.test(x));
+  const upstream=bad.filter(x=>/^engine\.js: Cool water and a moment of quiet restore ten focus/.test(x)),rest=bad.filter(x=>!upstream.includes(x)&&!prose.includes(x));
   if(upstream.length)console.log('  WARN engine.js still says "restore ten focus" for mana (change to "ten mana"):',upstream[0].slice(0,100));
   ok(rest.length===0&&(!process.env.STRICT||!upstream.length),'no hunger / nourishment / focus-for-mana wording in the source strings '+JSON.stringify(bad.slice(0,6)));
   const font=fs.existsSync(ROOT+'assets/fonts/pixelify-sans-latin-400-normal.woff2')&&fs.existsSync(ROOT+'assets/fonts/Pixelify-Sans-OFL.txt');
@@ -114,7 +116,7 @@ for(const [w,h] of SIZES){
       ok(p.h===0,`${tag} ${id} every button is at least 43px tall (${p.h} short)`);
       if(id==='bag'){ok(/\d+ coins/.test(p.text)&&/Level \d+/.test(p.text)&&/Mana \d+ \/ \d+/.test(p.text)&&/blade|bow/i.test(p.text),`${tag} satchel header shows coins, level, Mana X / Y and the weapon`);
         const chips=await page.evaluate(()=>[...document.querySelectorAll('#panel-body .stat-row>span')].map(s=>{const cs=getComputedStyle(s);return [s.textContent,cs.fontFamily.slice(0,10),cs.backgroundColor];}));ok(chips.length===4&&chips.every(c=>/Pixelify/.test(c[1])),`${tag} satchel header is four pixel-font chips ${JSON.stringify(chips.map(c=>c[0]))}`);}
-      if(id==='stats')ok(/Mana \d+ \/ \d+/.test(p.text),`${tag} stats tab shows Mana`);
+      if(id==='stats')ok(/Mana\s+\d+ \/ \d+/.test(p.text),`${tag} stats tab shows Mana`);
       if(id==='settings'){ok(/Pixelify Sans/.test(p.text)&&/Open Font License/.test(p.text),`${tag} Settings credits Pixelify Sans under the OFL`);ok(await page.evaluate(()=>!!document.querySelector('#panel-body a[href*="Pixelify-Sans-OFL"]')),`${tag} the credit links the license text`);}
       ok((await hscroll(page)).doc<=0&&(await hscroll(page)).dlg<=1,`${tag} ${id} no horizontal scroll ${JSON.stringify(await hscroll(page))}`);
       ok((await noWhite(page,tag)).length===0,`${tag} ${id} no light surfaces ${await noWhite(page,tag)}`);

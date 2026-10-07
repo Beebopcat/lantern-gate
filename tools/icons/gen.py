@@ -253,22 +253,26 @@ def _(k):
 
 @icon('coil')
 def _(k):
-    for i in range(6):
-        x = 7 + i * 3.6
-        k.ell(x, 16, 3, 9, COPPER, 'cyl', clip=lambda xx, yy, x=x: (xx + .5 - x) > -1.2 or abs(yy - 16) > 6)
-    k.tline(3, 24, 7, 22, COPPER, 2); k.tline(25, 9, 29, 7, COPPER, 2)
-    k.glint(8, 10)
+    # copper wire reel: wooden flanges, five tidy windings, a loose lead
+    k.rect(5, 4, 26, 7, DWOOD, 'cylx'); k.rect(5, 25, 26, 28, DWOOD, 'cylx')
+    for i in range(5):
+        y = 8 + i * 3.4
+        y0 = int(round(y)); k.rect(6, y0, 25, y0 + 2, COPPER, 'cylx')
+        for x in range(6, 26): k.put(x, y0 + 2, k.shade(COPPER, -.45))
+        k.put(9 + (i % 2) * 3, y0, k.shade(COPPER, .75)); k.put(10 + (i % 2) * 3, y0, k.shade(COPPER, .75))
+    k.tline(25, 22, 30, 18, COPPER, 2); k.tline(30, 18, 30, 12, COPPER, 2)
+    k.glint(9, 12)
     k.outline()
 
 @icon('lens')
 def _(k):
-    k.glow(16, 16, 15, (170, 220, 255))
-    k.ell(16, 16, 12, 12, BRASS)
-    k.ell(16, 16, 9, 9, ramp('#9fd6f0', spread=.22), 'flat')
-    k.ell(13, 13, 3.5, 2.5, ramp('#f2fbff', spread=.08), 'flat')
-    k.glint(21, 20)
-    for a in range(0, 360, 45):
-        r = math.radians(a); k.put(int(16 + 10.6 * math.cos(r)), int(16 + 10.6 * math.sin(r)), GOLD[4])
+    # brass-rimmed magnifying glass with a wooden handle
+    k.glow(13, 13, 14, (170, 220, 255))
+    k.tline(19, 19, 28, 28, WOOD, 4)
+    k.ell(13, 13, 11, 11, BRASS)
+    k.ell(13, 13, 8.2, 8.2, ramp('#9fd6f0', spread=.22), 'flat')
+    k.ell(10.5, 10.5, 3.2, 2.2, ramp('#f2fbff', spread=.08), 'flat')
+    k.glint(17, 17)
     k.outline()
 
 @icon('medallion')
@@ -292,12 +296,14 @@ def _(k):
 
 @icon('pearl')
 def _(k):
-    k.poly([(3, 22), (8, 15), (16, 13), (24, 15), (29, 22), (24, 27), (8, 27)], ramp('#d9a6a0', spread=.25))
-    for x in (8, 12, 16, 20, 24): k.line(16, 26, x, 16, ramp('#b8807c')[1])
-    k.ell(16, 16, 6, 6, PEARL)
-    k.glow(16, 16, 10, (230, 220, 255))
-    k.glint(14, 13)
-    k.put(19, 18, ramp('#c8b8f0')[3]); k.put(18, 19, ramp('#c8e0f0')[3])
+    SHELL = ramp('#e8b8c6', spread=.28)
+    k.poly([(3, 21), (6, 14), (11, 10), (16, 9), (21, 10), (26, 14), (29, 21), (25, 27), (7, 27)], SHELL)
+    for x in (7, 11, 16, 21, 25): k.line(16, 27, x, 12, ramp('#a86a82')[1])
+    k.rect(4, 25, 28, 27, ramp('#8a5068'), 'cyly')
+    k.glow(16, 17, 12, (235, 225, 255))
+    k.ell(16, 17, 7, 7, PEARL)
+    k.glint(13, 14, True)
+    k.put(19, 20, ramp('#c8b8f0')[3]); k.put(18, 21, ramp('#c8e0f0')[3])
     k.outline()
 
 @icon('ledger')
@@ -332,12 +338,14 @@ def _(k):
 
 @icon('seed')
 def _(k):
-    k.glow(15, 19, 11, (220, 230, 255))
-    k.poly([(15, 9), (21, 16), (21, 23), (15, 28), (9, 23), (9, 16)], SILVER)
-    k.line(15, 12, 15, 25, SILVER[1])
-    k.tline(15, 9, 17, 4, LEAFG, 2)
-    k.poly([(17, 6), (23, 3), (24, 7), (19, 8)], LEAFG)
-    k.glint(12, 15)
+    k.glow(15, 20, 11, (220, 230, 255))
+    # silver almond-shaped seed with a groove, and a bright two-leaf sprout
+    k.poly([(15, 12), (20, 16), (22, 21), (20, 26), (15, 29), (10, 26), (8, 21), (10, 16)], SILVER)
+    k.line(15, 14, 15, 27, SILVER[1])
+    k.tline(15, 12, 15, 6, LEAFG, 2)
+    k.poly([(15, 7), (10, 3), (6, 6), (11, 9)], GREEN)
+    k.poly([(16, 6), (22, 2), (26, 5), (20, 9)], LEAFG)
+    k.glint(12, 19, True)
     k.outline()
 
 @icon('crown')

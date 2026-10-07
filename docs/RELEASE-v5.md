@@ -90,16 +90,9 @@ One deliberate change to the v4 gate: v4's `deploy.mjs promote` demanded `qa.int
 
 Rollback: promote `dpl_REDACTED` again (`vercel promote`), exactly as v4 documented.
 
-## 7. Status (2026-10-07)
+## 7. Status (2026-10-07): LIVE
 
-- **Staged and verified, NOT promoted.** Private stage: `dpl_REDACTED` (`https://casey-site-fkkhup0v4-metapod-harden.vercel.app`, behind Vercel protection, not attached to caseyshingledecker.com). Release folder on the PC: `work\jrpg-v5-20261007-v5` (manifest sha256 `467ef53e0ae3a1e442e27a4948e82355e25dbc07822dca7a24644ccb8daee98b`, 4,190 files, exactly the 80 changes above).
-- Real-Chrome verification (`browser-qa.json` in that folder; screenshots in its `qa-shots\`): 1280x720, 768x1024, 390x844 and 844x390 all pass (starter labels, creation screen with Female/Male only and the sprite preview, no horizontal scroll, silent, no console errors, no missing files); all 80 changed files are served with exactly the prepared bytes; a sample of untouched live files, audio included, is byte-identical.
-- The live site is still `dpl_REDACTED`. The cloud session's permission system blocked the production promotion, so it needs Casey's go-ahead. To finish, run on the PC (about 30 seconds):
-
-```powershell
-cd C:\AI_Workspace\Creative_Projects\Active\Casey\PC-Project-2026-10-02\work\jrpg-v5-20261007-v5
-node deploy.mjs promote
-node ..\lantern-gate-v5-src\release\verify-live-v5.mjs .
-```
-
-  The stage's share link expires on 2026-10-08 06:39 UTC; the promote itself does not need it (it uses `browser-qa.json`, already written).
+- **Promoted and verified live** on 2026-10-07 (about 07:46 UTC): production deployment `dpl_REDACTED` (origin `https://casey-site-fkkhup0v4-metapod-harden.vercel.app`) now serves caseyshingledecker.com. Casey approved the promotion in the session. Release folder on the PC: `work\jrpg-v5-20261007-v5` (manifest sha256 `467ef53e0ae3a1e442e27a4948e82355e25dbc07822dca7a24644ccb8daee98b`, 4,190 files, exactly the 80 changes above; `promotion-result.json`, `live-verification.json`).
+- Before promoting: real-Chrome check of the private stage at 1280x720, 768x1024, 390x844 and 844x390 (`browser-qa.json`, screenshots in `qa-shots\`): all pass; all 80 changed files served byte-for-byte; an untouched sample, audio included, identical.
+- After promoting: `verify-live-v5.mjs` fetched the live site: 80 of 80 changed files match the manifest, and 40 of 40 sampled untouched files (audio included) are unchanged.
+- **Rollback:** `dpl_REDACTED` (v4) is kept and is a rollback candidate; promote it again exactly as v4 documented if anything looks wrong.

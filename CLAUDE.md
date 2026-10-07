@@ -20,7 +20,7 @@ Owner: Casey Shingledecker. Lantern Gate is a browser open-world RPG (three.js r
 
 ## Releases (live site)
 Hosting is the Vercel project `casey-site` (team `metapod-harden`). Production releases are built and promoted from Casey's Windows PC: folder `C:\AI_Workspace\Creative_Projects\Active\Casey\PC-Project-2026-10-02\work\`.
-- Live now: `dpl_REDACTED`, built from the release folder `work\site-dark-20261006-v4`. Rollback: `dpl_REDACTED`.
+- Live now: `dpl_REDACTED` (release v5, 2026-10-07), built from the release folder `work\jrpg-v5-20261007-v5`. Rollback: `dpl_REDACTED` (v4). Next release: use v5 as the base and its `candidate` as the previous payload; `release/prepare-v5.py`, `verify-stage-v5.mjs` and `verify-live-v5.mjs` are the template (see `docs/RELEASE-v5.md`). Never overlay the repo's `game/audio/` files: they are stand-ins, not the live recordings.
 - Flow:
   1. Create a new `work\<topic>-<date>-vN` folder. `release/prepare.py` copies the previous candidate, swaps exactly the changed files, asserts the change set and writes the manifest.
   2. Run `deploy.mjs stage` once (copy it from the v4 folder and update the base, the rollback and the CHANGES count).

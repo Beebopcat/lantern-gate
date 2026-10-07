@@ -71,7 +71,14 @@ function pathFor(s,a,target,max=2500,adjacent=false){return pathfind(a.map,a,tar
 const crowdBlocked=(s,a,x,y)=>L.doorBlocks(s,a,a.map,x,y)||((a.hunter||a.raid||CREATURES[a.kind])&&J.protectedByWard(s,{map:a.map,x,y}));
 function nudge(s,a,target,dt,speed){const d=dist(a,target);if(d<.08)return true;const step=Math.min(d,dt*speed),nx=a.x+(target.x-a.x)/d*step,ny=a.y+(target.y-a.y)/d*step;let moved=false;if(!solid(a.map,nx,a.y)&&!L.doorBlocks(s,a,a.map,nx,a.y)&&(!(a.hunter||a.raid||CREATURES[a.kind])||!J.protectedByWard(s,{map:a.map,x:nx,y:a.y}))){a.x=nx;moved=true;}if(!solid(a.map,a.x,ny)&&!L.doorBlocks(s,a,a.map,a.x,ny)&&(!(a.hunter||a.raid||CREATURES[a.kind])||!J.protectedByWard(s,{map:a.map,x:a.x,y:ny}))){a.y=ny;moved=true;}a.moving=moved;a.direction=target.y<a.y?-1:1;for(const p of doorProps)if(p.map===a.map&&dist(a,p)<1.1){const b=doorBuildings.get(p.id);if(!b||L.doorStatus(s,b)!=='locked')s.doors[p.id]=s.elapsed+4;}return dist(a,target)<.1;}
 function follow(s,a,dt,speed){if(!a.path?.length){a.moving=false;return;}if(nudge(s,a,a.path[0],dt,speed))a.path.shift();}
-export function move(s,dx,dy,dt){if(s.player.deadUntil||s.player.transportId)return;const p=s.player,l=Math.hypot(dx,dy)||1;const target={x:p.x+dx/l,y:p.y+dy/l};nudge(s,p,target,dt,3.6);p.direction=dy<0?-1:1;s.revision++;}
+// Props the hero cannot walk through (circles in tiles, plus the hero's own radius). Only the hero is stopped by them: residents and creatures
+// path to workbenches, beds and shrines on purpose, and the tile grid that paths use stays exactly as it was.
+const PROP_RADIUS={well:.9,notice:.4,stall:1,cart:1,lamp:.22,grave:.3,beacon:.42,brazier:.32,anvil:.45,oven:.5,barrels:.38,chest:.38,bookcase:.5,table:.5,bed:.5,alchemy:.45},HERO_RADIUS=.28;
+let propsByMap=null;
+function solidProps(map){if(!propsByMap){propsByMap=new Map();for(const q of PROPS)if(PROP_RADIUS[q.type]){if(!propsByMap.has(q.map))propsByMap.set(q.map,[]);propsByMap.get(q.map).push(q);}}return propsByMap.get(map)||[];}
+// Slide the hero out of any prop it overlaps; if the way out is blocked by the world, go back to where the step began.
+function slideOffProps(p,fromX,fromY){for(const q of solidProps(p.map)){const r=PROP_RADIUS[q.type]+HERO_RADIUS,dx=p.x-q.x,dy=p.y-q.y;if(Math.abs(dx)>=r||Math.abs(dy)>=r)continue;const d2=dx*dx+dy*dy;if(d2>=r*r)continue;const d=Math.sqrt(d2),nx=d>1e-4?q.x+dx/d*r:q.x+r,ny=d>1e-4?q.y+dy/d*r:q.y;if(!solid(p.map,nx,ny)){p.x=nx;p.y=ny;}else{p.x=fromX;p.y=fromY;}}}
+export function move(s,dx,dy,dt){if(s.player.deadUntil||s.player.transportId)return;const p=s.player,l=Math.hypot(dx,dy)||1,x0=p.x,y0=p.y;const target={x:p.x+dx/l,y:p.y+dy/l};nudge(s,p,target,dt,3.6);slideOffProps(p,x0,y0);p.direction=dy<0?-1:1;s.revision++;}
 export function walkPath(s,dt){if(s.player.deadUntil||s.player.transportId)return;follow(s,s.player,dt,3.8);}
 export function setDestination(s,x,y,adjacent=false){
  const p=s.player;if(p.transportId)return false;const m=MAPS[p.map],blocked=new Set();

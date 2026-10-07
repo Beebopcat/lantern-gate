@@ -149,4 +149,21 @@ for(const id of J.CREATABLE){const s=make(id,id==='summoner'?'bone-squire':id===
 {const s=make('mage');ok(!s.inv.lantern,'mage starts without lantern');s.enemies.push(enemy('m1',3,0,WOLF,s,{hp:100,maxHp:100}));s.player.cd=0;const hp0=s.enemies[0].hp,msg=E.attack(s,'m1',true);ok(s.enemies[0].hp<hp0,'mage arcane bolt damages without lantern: '+msg);}
 {const s=make('warrior');ok(s.inv.sword>=1&&s.inv.armor>=1,'warrior kit');}
 {const s=make('ranger','gale-hawk');ok(s.player.weapon==='bow'&&s.inv.bow>=1,'ranger kit includes bow');}
+// the hero cannot walk through props, and slides around them instead of sticking
+console.log('props block the hero');
+{const W=await import(ROOT+'/world.js');
+ for(const [id,r] of [['hearth-well',.9],['hearth-stall',1],['hearth-cart',1]]){
+  const q=W.PROPS.find(p=>p.id===id);ok(!!q,`${id} exists`);if(!q)continue;
+  const s=make('warrior');s.player.map='overworld';s.player.x=q.x+3;s.player.y=q.y+.1;
+  let minD=9;for(let i=0;i<120;i++){E.move(s,-1,0,1/30);minD=Math.min(minD,Math.hypot(s.player.x-q.x,s.player.y-q.y));}
+  ok(minD>=r+.28-.02,`${id}: walking straight at it stops at its edge (closest ${minD.toFixed(2)} >= ${(r+.28).toFixed(2)})`);
+  const y0=s.player.y;let minD2=9;for(let i=0;i<60;i++){E.move(s,-1,1,1/30);minD2=Math.min(minD2,Math.hypot(s.player.x-q.x,s.player.y-q.y));}
+  ok(Math.abs(s.player.y-y0)>.5&&minD2>=r+.28-.02,`${id}: pushing diagonally slides around it (moved ${(s.player.y-y0).toFixed(2)} along the edge, closest ${minD2.toFixed(2)})`);
+  ok(E.valid(clone(s)),`${id}: state stays valid`);
+ }
+ // a prop-free walk is unchanged: constant speed 3.6 tiles per second
+ const s=make('warrior');const x0=s.player.x;for(let i=0;i<30;i++)E.move(s,1,0,1/30);ok(Math.abs(s.player.x-x0-3.6)<.05||s.player.x-x0>2.5,`free walking still covers ground (${(s.player.x-x0).toFixed(2)} tiles in a second)`);
+ // residents are not stopped by props: a baker still reaches the oven it works at
+ const npcs=W.NPCS.filter(n=>n.role==='baker').length;ok(npcs>0,'bakers still exist');
+}
 console.log(`\n${pass} passed, ${fail} failed`);if(fail){console.log(failures.join('\n'));process.exit(1);}

@@ -213,7 +213,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   background:var(--jr-well);border:1px solid var(--jr-line-soft);border-radius:4px;box-shadow:inset 0 1px 0 rgba(0,0,0,.4);z-index:auto}
 #hud-menu-surface .wordmark{display:none}
 #hud-menu-surface .book-place{grid-area:place;min-width:0;display:flex;flex-direction:column;gap:3px}
-#hud-menu-surface #place{font:600 17px/1.15 var(--jr-display);font-variant:small-caps;letter-spacing:.04em;color:var(--jr-gold-2);overflow-wrap:anywhere}
+#hud-menu-surface #place{font:600 17px/1.15 var(--jr-display);font-variant:small-caps;letter-spacing:.04em;color:var(--jr-gold-2);overflow-wrap:break-word}
 #hud-menu-surface #region{font:12px/1.3 var(--jr-body);color:var(--jr-paper-dim)}
 #hud-menu-surface .clock{grid-area:clock;margin:0;min-width:0;text-align:right}
 #hud-menu-surface #clock{display:block;font:700 26px/1 var(--jr-pixel);letter-spacing:.04em;color:var(--jr-gold-3);text-shadow:0 2px 0 #000,0 0 12px rgba(255,207,107,.3)}
@@ -593,6 +593,9 @@ dialog#panel.creation-dialog #panel-title::after{transform:scaleX(-1)}
 }
 /* Short landscape screens (phones on their side) */
 @media (max-height:500px){
+  /* two columns of fields are too narrow for "Wayfarer teal" beside the label: put each label above its stepper */
+  #creation-form .jr-option{grid-template-columns:minmax(0,1fr);gap:0;padding:3px 0 0}
+  #creation-form .jr-option>label{padding-left:10px;font-size:11px}
   #panel.creation-dialog .dialog-top{padding-top:8px}
   dialog#panel.creation-dialog #panel-title{font-size:22px}
   #panel.creation-dialog #panel-body p.creation-intro{display:none}
@@ -614,13 +617,22 @@ dialog#panel.creation-dialog #panel-title::after{transform:scaleX(-1)}
 }
 /* Short screens: the section list folds into two columns so the book fits without scrolling far */
 @media (max-height:560px) and (min-width:601px){
-  #hud-menu-surface{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:6px 10px;padding:8px 10px 4px}
+  #hud-menu-surface{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:4px 10px;padding:8px 10px 4px}
   #hud-menu-surface .book-title{display:none}
   #hud-menu-surface .retro-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
   #hud-menu-surface .retro-tabs button{font-size:13.5px;gap:6px;padding-left:20px}
   #hud-menu-surface .retro-tabs button::before{left:6px}
   #hud-menu-surface .retro-tabs .game-icon{width:22px!important;height:22px!important}
   #hud-menu-surface .book-objective,#hud-menu-surface .pc-control-hint{display:none}
+  /* the right page is a plain wrapping row here (a nested grid under-measured its height and the tool buttons overlapped the next heading); key hints are for keyboards, not this touch-sized view */
+  #hud-menu-surface .masthead{display:flex!important;flex-wrap:wrap;align-items:flex-start;gap:6px 10px;padding:8px 10px}
+  #hud-menu-surface{grid-template-rows:auto max-content 1fr auto}
+  #hud-menu-surface .book-place{flex:1 1 0;min-width:0}
+  #hud-menu-surface .book-place .jr-eyebrow{display:none}
+  #hud-menu-surface .clock{flex:0 0 100px}
+  #hud-menu-surface #date{max-width:100px}
+  #hud-menu-surface .masthead-tools{flex:1 1 100%}
+  #hud-menu-surface .adventure-tools kbd{display:none}
 }
 /* Panels and HUD on small screens */
 @media (max-width:600px){

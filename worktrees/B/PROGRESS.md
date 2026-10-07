@@ -6,10 +6,10 @@ Branch claude/wt-b, worktree /home/user/wt-B. Test server on 8103. Shots in /tmp
 - [x] 1. Read CLAUDE.md, BRIEF, HANDOFF, CHECKPOINT, battle.js, battle-data.js, old UI, rpg.js hookup, tests.
 - [x] 2. qa/battle.rules.test.mjs (629 checks, mutation-checked) and engine fixes (see Findings).
 - [x] 3. Arena UI: game/battle-ui.js + game/battle.css rewritten (diorama arena, sprite poses, Ward pips, Fray glyphs, Kindle, 8-turn strip, skills/items/targets, result screen).
-- [ ] 4. qa/battle.browser.test.mjs rewritten (old 44 checks kept, new UI checks added); run it.
-- [ ] 5. Screenshots at 1280x720, 768x1024, 390x844, 844x390 looked at and polished.
-- [ ] 6. Full suites: engine 441, sprites 533, quest 581, battle.rules, battle.browser, classes 139, flow 123, fight.
-- [ ] 7. Commit, final report.
+- [x] 4. qa/battle.browser.test.mjs rewritten (old 44 checks kept, new UI checks added); all sections pass.
+- [x] 5. Screenshots at 1280x720, 768x1024, 390x844, 844x390 looked at.
+- [x] 6. Full suites run by the lead on the merged tree (engine 459, sprites 533, quest 581, battle.rules 629, battle.browser 183, classes 139, flow 123).
+- [x] 7. Committed.
 
 ## Findings in battle.js / battle-data.js (fixed)
 - Player-facing "focus" wording for mana in skill lists, hints, heal text (rule: mana, never focus).
@@ -25,4 +25,4 @@ Branch claude/wt-b, worktree /home/user/wt-B. Test server on 8103. Shots in /tmp
 - Stagger semantics kept as the engine documents them: the foe loses its remaining turn(s) up to the end of the next round (one or two turns), takes +50%, then recovers, Ward refills and it is Steadied until it has acted.
 
 ## Final status
-(not finished)
+Done. The helper was stopped mid-way by an interruption; the lead finished it: made three browser checks robust (ranger opening hit, defeat read from the game log, reduced motion counted as requested pauses via `data-waited`), merged the branch and ran every suite. Engine contract kept: ctx.hurt, G.damage, ctx.use, seeded rng, nothing saved, settle/battleGrace.

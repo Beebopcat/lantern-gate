@@ -24,7 +24,7 @@ console.log('static: link order, skin class, wording');
   }
   // Known upstream string in engine.js (not owned by the skin work): reported to the lead, shown as a warning unless STRICT=1.
   // Story prose may use the ordinary word "hungry" (a narrated, hash-bound harbor line and one story about a loaf); the rule is about the hunger mechanic and the Nourishment stat.
-  const prose=bad.filter(x=>/a safe light from a hungry one|hungry stranger would know/.test(x));
+  const prose=bad.filter(x=>/^(narrator-b-expected\.js|world\.js): The cave singers tuned their pearl|^stories\.js: My mother marked the first loaf/.test(x));
   const upstream=bad.filter(x=>/^engine\.js: Cool water and a moment of quiet restore ten focus/.test(x)),rest=bad.filter(x=>!upstream.includes(x)&&!prose.includes(x));
   if(upstream.length)console.log('  WARN engine.js still says "restore ten focus" for mana (change to "ten mana"):',upstream[0].slice(0,100));
   ok(rest.length===0&&(!process.env.STRICT||!upstream.length),'no hunger / nourishment / focus-for-mana wording in the source strings '+JSON.stringify(bad.slice(0,6)));

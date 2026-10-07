@@ -80,7 +80,10 @@ open(HERE + r'\preparation.json', 'w').write(json.dumps(prep, indent=1))
 # deploy.mjs for this release: the v4 script with the new base, rollback and change count (each replacement must hit exactly once)
 src = open(OLD + r'\deploy.mjs', encoding='utf-8').read()
 for old, new in (("base='dpl_REDACTED',rollbackKept='dpl_REDACTED'", "base='%s',rollbackKept='%s'" % (BASE, ROLLBACK_KEPT)),
-                 ("const CHANGES=1;", "const CHANGES=%d;" % len(real))):
+                 ("const CHANGES=1;", "const CHANGES=%d;" % len(real)),
+                 # v4 required a check in Claude's built-in browser pane. v5 is verified by verify-stage-v5.mjs in the PC's real Google Chrome
+                 # (4 viewports, changed bytes compared with the manifest), which sets realBrowser:true. Every other promote condition is unchanged.
+                 ("qa.internalBrowser!==true||", "(qa.internalBrowser!==true&&qa.realBrowser!==true)||")):
     assert src.count(old) == 1, old
     src = src.replace(old, new)
 open(HERE + r'\deploy.mjs', 'w', encoding='utf-8', newline='\n').write(src)

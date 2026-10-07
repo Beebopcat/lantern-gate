@@ -17,7 +17,11 @@ Cascade check: `qa/skin-diff.mjs` dumps computed styles for every state; `ORDER=
 - [x] 2 creation screen: stage + pedestal, large sprite (drawSprite, whole-pixel scale), turn left/right + stance buttons, drag to turn, name/appearance with stepper options, calling cards, companion cards, abilities, back/confirm (journey-ui.js)
 - [x] HUD bust canvas (#hud-portrait) drawn from the hero sprite (journey-ui.js hud())
 - [x] Pixelify Sans OFL credit in Settings (journey-ui.js settings())
-- [ ] 1 legacy sheets reduced to layout-only (tool-assisted strip), skin verified with theme first (skin-diff)
-- [ ] 3 starter, HUD, menu, panels, toasts verified in browser at 4 sizes
-- [ ] 4 responsive shots + suites (engine 441, sprites 533, quest 581, flow 123, classes 139, music-title 7, music 10, quest.browser 151)
-- [ ] report
+- [x] 1 legacy sheets reduced to layout-only (tool-assisted strip), skin verified with theme first (skin-diff)
+- [x] 3 starter, HUD, menu, panels, toasts verified in browser at 4 sizes
+- [x] 4 responsive shots + suites (engine 441, sprites 533, quest 581, flow 123, classes 139, music-title 7, music 10, quest.browser 151)
+- [x] report
+
+
+## Final status
+Done. The helper was stopped mid-way by an interruption; the lead finished it: starter labels fit at phone widths, panel summaries are 44px, "restore ten focus" became "ten mana", the creation screen offers Female and Male only, and the skin test (qa/skin.browser.test.mjs) was made layout-tolerant. Theme is linked first in index.html with quest.css and battle.css last; skin rules win through the body.jr-skin class.

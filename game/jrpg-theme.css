@@ -1,0 +1,50 @@
+/* Lantern Gate "storybook HD-2D" interface theme: shared tokens and primitives.
+   Original design for this project. Other stylesheets use the variables below (always with a fallback). */
+@font-face{font-family:"Pixelify Sans";font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/pixelify-sans-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Pixelify Sans";font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/pixelify-sans-latin-700-normal.woff2) format("woff2")}
+:root{
+  --jr-ink-0:#0a0e1f;--jr-ink-1:#131a36;--jr-ink-2:#1c2548;--jr-ink-3:#2a3566;--jr-ink-4:#3b4a8a;
+  --jr-gold-0:#6f5320;--jr-gold-1:#c9a24a;--jr-gold-2:#f0cf7a;--jr-gold-3:#fff0b8;
+  --jr-paper:#f3e7c9;--jr-paper-dim:#bfb391;--jr-paper-faint:#857c63;
+  --jr-ember:#e8704f;--jr-leaf:#7fd18b;--jr-sky:#7fb4f2;--jr-violet:#a58be0;--jr-rose:#e27a9c;--jr-teal:#69d6c4;
+  --jr-hp:#e0604a;--jr-mp:#5f9cf0;--jr-xp:#e6c15c;--jr-ward:#b9c4e6;
+  --jr-glow:0 0 14px rgba(255,207,107,.55);
+  --jr-display:"Palatino Linotype","Book Antiqua",Palatino,"URW Palladio L",Georgia,serif;
+  --jr-body:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --jr-pixel:"Pixelify Sans","Courier New",monospace;
+  --jr-radius:6px;
+  --jr-shadow:0 6px 0 rgba(0,0,0,.35),0 14px 30px rgba(4,7,20,.55);
+}
+/* Window: indigo parchment with a double gold rule and corner brackets */
+.jr-panel{position:relative;color:var(--jr-paper);font-family:var(--jr-body);border:2px solid var(--jr-gold-1);border-radius:var(--jr-radius);
+  background:radial-gradient(120% 80% at 15% 0%,rgba(130,150,255,.12),transparent 60%),linear-gradient(180deg,var(--jr-ink-2),var(--jr-ink-1));
+  box-shadow:inset 0 0 0 1px var(--jr-ink-0),inset 0 0 0 3px rgba(240,207,122,.26),var(--jr-shadow)}
+.jr-panel::before,.jr-panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--jr-gold-2);pointer-events:none}
+.jr-panel::before{left:-3px;top:-3px;border-right:0;border-bottom:0}.jr-panel::after{right:-3px;bottom:-3px;border-left:0;border-top:0}
+.jr-panel--flat{box-shadow:inset 0 0 0 1px var(--jr-ink-0),inset 0 0 0 3px rgba(240,207,122,.2)}
+/* Heading with ornaments */
+.jr-title{display:flex;align-items:center;gap:.7em;margin:0;font:600 1.05rem/1.2 var(--jr-display);font-variant:small-caps;letter-spacing:.14em;color:var(--jr-gold-2);text-shadow:0 1px 0 #000}
+.jr-title::before,.jr-title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--jr-gold-1))}.jr-title::after{transform:scaleX(-1)}
+.jr-eyebrow{font:700 .68rem/1 var(--jr-pixel);letter-spacing:.2em;text-transform:uppercase;color:var(--jr-gold-1)}
+.jr-divider{height:1px;border:0;margin:.7em 0;background:linear-gradient(90deg,transparent,var(--jr-gold-1),transparent);opacity:.7}
+/* Selectable row / button, with a lantern-diamond cursor */
+.jr-btn{position:relative;display:flex;align-items:center;gap:.6em;min-height:44px;padding:.35em .9em .35em 1.5em;color:var(--jr-paper);font:600 .95rem/1.2 var(--jr-display);text-align:left;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0)),var(--jr-ink-2);border:1px solid var(--jr-ink-4);border-radius:4px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35)}
+.jr-btn::before{content:"";position:absolute;left:.55em;top:50%;width:.5em;height:.5em;margin-top:-.25em;transform:rotate(45deg) scale(0);background:var(--jr-gold-2);box-shadow:var(--jr-glow);transition:transform .12s}
+.jr-btn:hover,.jr-btn:focus-visible,.jr-btn.is-selected{border-color:var(--jr-gold-1);background:linear-gradient(180deg,rgba(240,207,122,.16),rgba(240,207,122,.04)),var(--jr-ink-3);outline:none}
+.jr-btn:hover::before,.jr-btn:focus-visible::before,.jr-btn.is-selected::before{transform:rotate(45deg) scale(1)}
+.jr-btn:disabled,.jr-btn[aria-disabled=true]{opacity:.45;cursor:not-allowed;filter:saturate(.5)}
+.jr-btn--primary{border-color:var(--jr-gold-1);background:linear-gradient(180deg,#8a6a26,#5a4217);color:var(--jr-gold-3)}
+/* Segmented gauge: <div class="jr-bar jr-bar--hp"><i style="width:60%"></i></div> */
+.jr-bar{position:relative;height:9px;border:1px solid #000;border-radius:2px;background:#05070f;overflow:hidden}
+.jr-bar>i{display:block;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 45%),var(--jr-hp);transition:width .35s steps(12,end)}
+.jr-bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.45) 5px 6px);pointer-events:none}
+.jr-bar--mp>i{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 45%),var(--jr-mp)}
+.jr-bar--xp>i{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 45%),var(--jr-xp)}
+.jr-bar--ward>i{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 45%),var(--jr-ward)}
+/* Small tag / chip and pixel numerals */
+.jr-chip{display:inline-flex;align-items:center;gap:.35em;padding:.1em .55em;font:700 .72rem/1.5 var(--jr-pixel);letter-spacing:.06em;color:var(--jr-gold-3);background:var(--jr-ink-0);border:1px solid var(--jr-gold-0);border-radius:3px}
+.jr-num{font-family:var(--jr-pixel);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+/* Sprite canvases are always drawn with hard pixels */
+canvas.jr-sprite,.jr-sprite{image-rendering:pixelated;image-rendering:crisp-edges}
+@media(prefers-reduced-motion:reduce){.jr-btn::before,.jr-bar>i{transition:none}}

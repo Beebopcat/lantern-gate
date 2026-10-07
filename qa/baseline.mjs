@@ -1,0 +1,20 @@
+import {launch,newPage,seed,open,enterViaLoad,createViaUI,ok,summary} from './lib.mjs';
+const out=process.argv[2]||'base';
+const b=await launch();
+const page=await newPage(b,{w:1280,h:720});
+await open(page);
+await page.waitForTimeout(3000);
+await page.screenshot({path:`${out}-title.png`});
+await page.click('#starter-menu [data-starter=new]');await page.waitForSelector('#creation-form');await page.waitForTimeout(1500);
+await page.screenshot({path:`${out}-create.png`});
+await page.fill('#character-name','Tester');await page.click('.calling-card[data-id=ranger]');await page.waitForSelector('.companion-card');await page.waitForTimeout(800);
+await page.screenshot({path:`${out}-create2.png`});
+await page.click('.companion-card >> nth=0');
+await page.click('[data-action=create-character]');
+await page.waitForFunction(()=>document.getElementById('game').dataset.arriving==='false',null,{timeout:30000});
+await page.waitForTimeout(4000);
+await page.screenshot({path:`${out}-world.png`});
+await page.click('#hud-menu');await page.waitForTimeout(800);await page.screenshot({path:`${out}-menu.png`});
+for(const id of ['bag','journal','character','skills','settings']){const t=page.locator('#'+id);if(await t.count()){await t.first().click();await page.waitForTimeout(700);await page.screenshot({path:`${out}-tab-${id}.png`});}}
+console.log('errors',page.errors);
+await b.close();

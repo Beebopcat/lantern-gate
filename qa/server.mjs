@@ -1,0 +1,4 @@
+import http from 'node:http';import fs from 'node:fs';import path from 'node:path';
+const root=process.argv[2]||'/home/claude/site',port=Number(process.argv[3]||8099);
+const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.webp':'image/webp','.json':'application/json','.png':'image/png','.txt':'text/plain','.mp3':'audio/mpeg','.wav':'audio/wav','.woff2':'font/woff2','.woff':'font/woff','.svg':'image/svg+xml','.ttf':'font/ttf'};
+http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const f=path.join(root,u);if(!f.startsWith(root)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);r.end('nf');return;}r.writeHead(200,{'content-type':types[path.extname(f)]||'application/octet-stream','cache-control':'no-store'});fs.createReadStream(f).pipe(r);}).listen(port,'127.0.0.1',()=>console.log('up',port));

@@ -1,0 +1,11 @@
+import {launch,newPage,seed,BASE,KEY} from './lib.mjs';
+const b=await launch();
+const p=await newPage(b,{w:1280,h:720});
+await seed(p,{classId:'ranger',companionId:'ash-wolf'});
+await p.goto(BASE+'index.html');
+await p.waitForFunction(()=>document.getElementById('world')?.dataset.ready==='true',null,{timeout:90000}).catch(e=>console.log('notready'));
+await p.waitForTimeout(5000);
+console.log(await p.evaluate(()=>{const c=document.getElementById('world');return JSON.stringify({look:c.dataset.look,cam:c.dataset.cameraMode,res:c.dataset.resolution,calls:c.dataset.drawCalls,fps:c.dataset.fps})}));
+console.log(p.errors.join('\n'));
+await p.screenshot({path:'hd-1.png'});
+await b.close();

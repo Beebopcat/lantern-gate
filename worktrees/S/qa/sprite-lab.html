@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprite Lab</title>
+<!-- Serve the worktree root (node /home/claude/qa/server.mjs /home/claude/wt/S 8111) and open /qa/sprite-lab.html -->
+<style>
+  :root { --bg: #1b2030; --panel: #262c3f; --ink: #efe6cf; --muted: #a9a28f; --gold: #d8b46a; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; }
+  header { padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--panel); position: sticky; top: 0; z-index: 2; }
+  header h1 { font-size: 16px; margin: 0 12px 0 0; color: var(--gold); }
+  label { display: flex; gap: 4px; align-items: center; color: var(--muted); }
+  select, input { background: #151926; color: var(--ink); border: 1px solid #4a4f63; border-radius: 4px; padding: 4px 6px; }
+  main { padding: 12px 16px; }
+  h2 { font-size: 14px; color: var(--gold); margin: 18px 0 6px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  figure { margin: 0; background: #3a4650; border-radius: 4px; padding: 4px; text-align: center; }
+  figcaption { font-size: 11px; color: var(--muted); }
+  canvas { image-rendering: pixelated; display: block; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sprite Lab</h1>
+  <label>Calling <select id="cls"><option>warrior</option><option>mage</option><option>ranger</option><option>summoner</option></select></label>
+  <label>Identity <select id="gender"><option>female</option><option>male</option><option>nonbinary</option></select></label>
+  <label>Skin <select id="skin"><option>warm</option><option>earth</option><option>deep</option><option>pale</option><option>olive</option></select></label>
+  <label>Hair <select id="hair"><option>brown</option><option>black</option><option>silver</option><option>auburn</option><option>gold</option></select></label>
+  <label>Attire <select id="outfit"><option>traveler</option><option>burgundy</option><option>royal</option><option>gold</option><option>forest</option></select></label>
+  <label>Name <input id="name" value="Tester" size="10"></label>
+  <label>Scale <select id="scale"><option>2</option><option>3</option><option selected>4</option><option>6</option></select></label>
+  <label>Background <input id="bg" type="color" value="#4a5a50"></label>
+</header>
+<main>
+  <h2>Hero: every direction and pose (animated)</h2><div class="grid" id="hero"></div>
+  <h2>Residents</h2><div class="grid" id="npcs"></div>
+  <h2>Companions</h2><div class="grid" id="comps"></div>
+  <h2>Foes and pets</h2><div class="grid" id="foes"></div>
+</main>
+<script type="module">
+import {DIRS, POSES, POSE_FRAMES, drawSprite, spriteSheet} from '../game/sprites.js';
+const $ = id => document.getElementById(id);
+const cells = [];
+function cell(host, actor, dir, pose, label) {
+  const sh = spriteSheet(actor); if (!sh) return;
+  const fig = document.createElement('figure'), c = document.createElement('canvas'), cap = document.createElement('figcaption');
+  cap.textContent = label; fig.append(c, cap); host.append(fig); cells.push({c, actor, dir, pose, sh});
+}
+function build() {
+  cells.length = 0; for (const id of ['hero', 'npcs', 'comps', 'foes']) $(id).innerHTML = '';
+  const hero = {kind: 'hero', classId: $('cls').value, gender: $('gender').value, skin: $('skin').value, hair: $('hair').value, outfit: $('outfit').value, name: $('name').value || 'Tester'};
+  for (const pose of POSES) for (const dir of DIRS) cell($('hero'), hero, dir, pose, pose + ' ' + dir);
+  const roles = ['keeper', 'scholar', 'smith', 'healer', 'baker', 'farmer', 'merchant', 'guard', 'ranger', 'innkeeper', 'miner', 'clergy'];
+  roles.forEach((role, i) => cell($('npcs'), {type: 'npc', role, name: ['Mara', 'Galen', 'Bram', 'Nell', 'Edda', 'Orin', 'Wren', 'Corin', 'Jory', 'Ada', 'Hugh', 'Una'][i], id: 'lab-' + i}, 'down', 'walk', role));
+  for (const k of ['ember-imp', 'bone-squire', 'gloam-wisp', 'moss-golem', 'ash-wolf', 'thorn-boar', 'dusk-lynx', 'gale-hawk']) for (const d of ['down', 'left']) cell($('comps'), {type: 'guardian', kind: k, id: 'g-' + k}, d, 'walk', k + ' ' + d);
+  for (const k of ['wolf', 'goblin', 'troll', 'ghost', 'skeleton', 'zombie', 'thief', 'bandit', 'sentinel', 'dog', 'cat', 'fox']) cell($('foes'), {type: 'enemy', kind: k, id: 'e-' + k}, 'left', 'walk', k);
+}
+function frame(t) {
+  const s = +$('scale').value, bg = $('bg').value;
+  for (const x of cells) {
+    if (x.c.width !== x.sh.w * s) {x.c.width = x.sh.w * s; x.c.height = x.sh.h * s;}
+    const n = POSE_FRAMES[x.pose], f = x.pose === 'walk' ? Math.floor(t / 140) % 4 : x.pose === 'idle' ? Math.floor(t / 600) % 2 : Math.floor(t / 300) % n;
+    drawSprite(x.c, x.actor, {dir: x.dir, pose: x.pose, frame: f, scale: s, bg});
+  }
+  requestAnimationFrame(frame);
+}
+for (const id of ['cls', 'gender', 'skin', 'hair', 'outfit', 'name']) $(id).addEventListener('input', build);
+build(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

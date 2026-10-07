@@ -1,0 +1,40 @@
+/* Turn-based battle screen. The world keeps rendering (paused) behind a dusk wash. */
+#battle{position:absolute;inset:0;z-index:200;display:grid;grid-template-rows:auto 1fr auto auto;gap:8px;padding:10px 12px 12px;box-sizing:border-box;color:#f2ebd5;background:linear-gradient(rgba(10,16,24,.38),rgba(8,12,18,.78) 70%,rgba(8,12,18,.92));font:14px/1.35 system-ui,sans-serif}
+#battle[hidden]{display:none!important}
+#battle .b-banner{justify-self:center;padding:4px 18px;border:1px solid #c9a95a;border-radius:4px;background:rgba(20,32,40,.88);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:#f3d98b}
+#battle .b-stage{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;min-height:0}
+#battle .b-foes,#battle .b-party{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;min-height:0}
+#battle .b-foe{all:unset;cursor:default;display:block}
+#battle .b-foe.pick{cursor:pointer}#battle .b-foe.pick .b-card{border-color:#f3d98b;box-shadow:0 0 10px rgba(243,217,139,.55)}
+#battle .b-foe.pick:focus-visible .b-card,#battle .b-foe.pick:hover .b-card{outline:3px solid #f3d98b}
+#battle .b-foe:disabled{opacity:.35}
+#battle .b-card{position:relative;display:flex;flex-direction:column;gap:4px;width:min(18vw,170px);min-width:96px;padding:6px;border:1px solid #7a6a45;border-radius:6px;background:rgba(18,30,38,.86);transition:transform .15s}
+#battle .b-card canvas{width:100%;aspect-ratio:1;display:block;border-radius:4px;background:#1a303d;image-rendering:pixelated}
+#battle .b-card.down{opacity:.4;filter:grayscale(1)}
+#battle .b-card.hit{animation:bhit .32s}
+@keyframes bhit{20%{transform:translateX(-6px);filter:brightness(2)}60%{transform:translateX(5px)}}
+#battle .b-meta{display:flex;flex-direction:column;gap:2px}
+#battle .b-meta strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#battle .b-bar{height:7px;border-radius:4px;background:#0b1218;overflow:hidden;border:1px solid #3a4a52}
+#battle .b-bar i{display:block;height:100%;background:linear-gradient(#e56a4a,#b13a2a);transition:width .35s}
+#battle .b-player .b-bar i,#battle .b-guardian .b-bar i{background:linear-gradient(#7fd18b,#3f9a54)}
+#battle .b-bar.b-mp i{background:linear-gradient(#7fb4f2,#3a6fc2)}
+#battle small{font-size:11px;color:#d4cbb0}
+#battle .b-pop{position:absolute;left:50%;top:30%;transform:translateX(-50%);font:700 22px system-ui;color:#fff;text-shadow:0 2px 0 #000,0 0 6px #e56a4a;pointer-events:none;animation:bpop .9s ease-out forwards}
+#battle .b-pop.crit{color:#f3d98b;font-size:28px}
+@keyframes bpop{to{transform:translate(-50%,-34px);opacity:0}}
+#battle .b-log{min-height:5.4em;max-height:7.5em;overflow:hidden;padding:6px 10px;border:1px solid #4a5a60;border-radius:6px;background:rgba(10,16,22,.8)}
+#battle .b-log p{margin:0}
+#battle .b-log p:last-child{color:#f3d98b}
+#battle .b-menu{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+#battle .b-menu button{min-height:44px;min-width:92px;padding:0 14px;border:1px solid #8c9b92;border-radius:5px;background:linear-gradient(#34505a,#1c3340);color:#f2ebd5;font:inherit;cursor:pointer}
+#battle .b-menu button:hover:not(:disabled){background:linear-gradient(#41606b,#24404e)}
+#battle .b-menu button:focus-visible{outline:3px solid #f3d98b;outline-offset:1px}
+#battle .b-menu button:disabled{opacity:.45;cursor:not-allowed}
+#battle .b-menu kbd{font:11px monospace;opacity:.7;margin-right:2px}
+#battle .b-menu small{opacity:.8}
+#battle .b-result{flex-basis:100%;text-align:center;margin:0 0 4px;font-size:16px;color:#f3d98b}
+#battle .b-prompt{margin:0 8px;color:#f3d98b}
+@media(max-width:700px){#battle{padding:6px;gap:5px}#battle .b-stage{grid-template-columns:1fr}#battle .b-card{width:84px;min-width:84px;padding:4px}#battle .b-meta strong{font-size:12px}#battle .b-menu button{min-width:0;flex:1 1 30%;padding:0 6px}}
+@media(max-height:520px){#battle .b-card canvas{display:none}#battle .b-card{width:140px;min-width:0}#battle .b-log{min-height:3.6em}}
+@media(prefers-reduced-motion:reduce){#battle *{animation:none!important;transition:none!important}}

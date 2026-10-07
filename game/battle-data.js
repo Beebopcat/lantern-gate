@@ -65,7 +65,7 @@ export const SKILLSETS = {
     { id: 'frost-nova', name: 'Frost Nova', mp: 16, type: 'frost', target: 'all', power: .6, spell: true, slow: 1,
       hint: 'Chill every foe; they act last next round.', kindleHint: '+1 frost pulse per Kindle.' },
     { id: 'mana-surge', name: 'Mana Surge', mp: 4, type: null, target: 'self', heal: 10,
-      hint: 'Recover half your focus and 10 health.', kindleHint: '+10 health per Kindle.' }
+      hint: 'Recover half your mana and 10 health.', kindleHint: '+10 health per Kindle.' }
   ],
   ranger: [
     { id: 'piercing-shot', name: 'Piercing Shot', mp: 9, type: 'bow', target: 'one', power: 1.5,

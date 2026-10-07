@@ -15,8 +15,9 @@ import * as G from './companions.js';
 import * as P from './progression.js';
 import * as J from './journey.js';
 import * as D from './battle-data.js';
+import { ITEMS } from './world.js';
 
-export { TYPES, TYPE_INFO, SKILLSETS } from './battle-data.js';
+export { TYPES, TYPE_INFO, SKILLSETS, foeData } from './battle-data.js';
 export const GRACE = 5;           // seconds of world time after a battle before the next can begin
 export const ENGAGE_RANGE = 2.2;  // tiles between the player and a hostile that starts a battle
 export const GROUP_RANGE = 5;     // other hostiles this close to the first join in (max 3)
@@ -32,6 +33,8 @@ const SIGNATURE = { warrior: 1, mage: 0, ranger: 0, summoner: 0, default: 0 };
 export const SKILLS = Object.fromEntries(Object.entries(SIGNATURE).map(([c, i]) => { const k = D.SKILLSETS[c][i]; return [c, { name: k.name, mp: k.mp, hint: k.hint, index: i }]; }));
 export const skillFor = s => SKILLS[s.player.classId] || SKILLS.default;
 export const ITEM_LIST = ['salve', 'bread', 'fish', 'tonic'];
+// Name and effect text of a battle item, straight from the world's own item table (no duplicated numbers).
+export const itemInfo = id => ({ id, name: ITEMS[id]?.name || id, detail: ITEMS[id]?.detail || '' });
 
 const alive = e => e && !e.deadUntil && e.hp > 0;
 const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
@@ -67,7 +70,8 @@ export const foe = (b, s) => b.foes.map(id => s.enemies.find(e => e.id === id)).
 export const livingFoes = (b, s) => foe(b, s).filter(alive);
 const find = (s, id) => s.enemies.find(e => e.id === id);
 const companion = s => (s.guardian && !s.guardian.fallen && G.COMPANIONS[s.guardian.kind]) ? s.guardian : null;
-export const attackType = s => s.player.weapon === 'bow' ? 'bow' : 'blade';
+// A bow looses bow arrows, a mage's staff strikes arcane, everything else is a blade.
+export const attackType = s => s.player.weapon === 'bow' ? 'bow' : s.player.classId === 'mage' ? 'arcane' : 'blade';
 export const staggered = (b, id) => (b.st[id]?.staggerUntil || 0) >= b.round;
 
 export function begin(s, foes, ctx = {}, seed = Math.floor(s.elapsed * 1000) + s.kills * 7919) {
@@ -133,7 +137,7 @@ export function snapshot(b, s) {
   const p = s.player, g = s.guardian;
   const out = { player: { hp: Math.round(p.hp), maxHp: p.maxHp, mp: Math.round(p.mp), maxMp: p.maxMp, kindle: b.kindle, guard: b.guard, wall: b.wallUntil >= b.round, shield: b.shield, cover: b.cover } };
   if (g) out.guardian = { hp: Math.round(g.hp), maxHp: g.maxHp, fallen: !!g.fallen, empowered: b.comp.empowerUntil >= b.round };
-  out.foes = Object.fromEntries(foe(b, s).map(e => { const st = b.st[e.id]; return [e.id, { hp: Math.round(e.hp), maxHp: e.maxHp, dead: !alive(e), ward: st.ward, maxWard: st.maxWard, frays: st.frays.length, revealed: st.revealed.slice(), tested: st.tested.slice(), staggered: staggered(b, e.id), steady: st.steady, charging: st.charging, marked: st.markUntil >= b.round, slowed: st.slowUntil > b.round }]; }));
+  out.foes = Object.fromEntries(foe(b, s).map(e => { const st = b.st[e.id]; return [e.id, { hp: Math.round(e.hp), maxHp: e.maxHp, dead: !alive(e), ward: st.ward, maxWard: st.maxWard, frays: st.frays.length, revealed: st.revealed.slice(), tested: st.tested.slice(), staggered: staggered(b, e.id), steady: st.steady, charging: st.charging, marked: st.markUntil >= b.round, slowed: st.slowUntil >= b.round }]; }));
   return out;
 }
 
@@ -144,10 +148,10 @@ export function skillsFor(s) {
 }
 export function skillList(b, s) {
   return skillsFor(s).map(k => {
-    let why = s.player.mp < k.mp ? `Needs ${k.mp} focus.` : '';
+    let why = s.player.mp < k.mp ? `Needs ${k.mp} mana.` : '';
     if (!why && k.target === 'ally' && !s.guardian) why = 'You have no bound companion.';
     if (!why && k.id === 'rally-the-bound' && !companion(s)) why = 'Your minion has fallen. Recall it first.';
-    if (!why && k.id === 'mana-surge' && s.player.mp >= s.player.maxMp && s.player.hp >= s.player.maxHp) why = 'Focus and health are full.';
+    if (!why && k.id === 'mana-surge' && s.player.mp >= s.player.maxMp && s.player.hp >= s.player.maxHp) why = 'Mana and health are full.';
     return { ...k, enabled: !why, why };
   });
 }
@@ -163,7 +167,7 @@ export function commands(b, s) {
   return [
     { id: 'attack', label: 'Attack', enabled: true, type: t, hint: `Strike one foe (${D.TYPE_INFO[t].label.toLowerCase()}). Each Kindle adds a hit.` },
     { id: 'skill', label: 'Skills', enabled: list.some(k => k.enabled), hint: list.map(k => k.name).join(' · ') },
-    { id: 'guard', label: 'Guard', enabled: true, hint: 'Halve the next blows, recover 4 focus and gain 1 Kindle.' },
+    { id: 'guard', label: 'Guard', enabled: true, hint: 'Halve the next blows, recover 4 mana and gain 1 Kindle.' },
     { id: 'item', label: 'Items', enabled: ITEM_LIST.some(i => s.inv[i] > 0), hint: 'Use a salve, food or a tonic.' },
     { id: 'flee', label: 'Flee', enabled: true, hint: `Try to break away (${Math.round(fleeChance(b, s) * 100)}%). Each Kindle adds 15%.` }
   ];
@@ -226,7 +230,9 @@ function strike(b, s, e, { type, power = 1, spell = false, src = 'player', verb 
   const tag = fray ? ` — ${D.TYPE_INFO[type].label} is a Fray!` : stag ? ' — Staggered, +50%!' : '';
   const hit = ev(b, s, 'hit', { src: src === 'player' ? 'player' : 'guardian', dst: e.id, amount: dealt, crit, dtype: type, fray, revealed, staggered: stag, idx, n, text: `${who} ${verb} ${e.name} for ${dealt}${crit ? ' (critical)' : ''}${tag}`, ...extra });
   events.push(hit);
-  if (fray) { const was = st.ward; if (chipWard(b, s, e, events)) { hit.broke = true; hit.ward = st.ward; hit.hp = snapshot(b, s); events.splice(events.indexOf(hit) + 1, 0); hit.wardFrom = was; } }
+  // A Fray hit removes one Ward pip. The hit event reports the pip (`wardFrom` -> `ward`) and, if the foe broke, the
+  // 'stagger' event follows it directly; the hit's own snapshot is refreshed so a replay shows the pip already gone.
+  if (fray) { const was = st.ward; if (chipWard(b, s, e, events)) { hit.chipped = true; hit.wardFrom = was; hit.ward = st.ward; hit.hp = snapshot(b, s); if (!st.ward) hit.hp.foes[e.id].staggered = false; } }
   return dealt;
 }
 
@@ -299,7 +305,7 @@ function foeTurn(b, s, e, now, ctx, events) {
   st.steady = false;
   const special = st.charging, move = special ? d.special : { name: d.move, mult: 1, area: 'one' };
   st.charging = false; st.acts++;
-  const raw = () => vary(b, e.attack * FOE_POWER * move.mult * (e.hunter ? 1.1 : 0) + e.attack * FOE_POWER * move.mult * (e.hunter ? 0 : 1), .12);
+  const raw = () => vary(b, e.attack * FOE_POWER * move.mult * (e.hunter ? 1.1 : 1), .12);
   const ally = companion(s);
   let pick = 'player';
   if (move.area === 'all') pick = 'all';
@@ -307,7 +313,7 @@ function foeTurn(b, s, e, now, ctx, events) {
   if (pick === 'player' && ally && b.cover) { pick = 'guardian'; b.cover = false; events.push(ev(b, s, 'note', { src: 'guardian', text: `${ally.name} leaps in front of the blow!` })); }
   events.push(ev(b, s, 'act', { src: e.id, label: move.name, special, targets: pick === 'all' ? ['player', ...(ally ? ['guardian'] : [])] : [pick] }));
   if (pick === 'player' || pick === 'all') hurtPlayer(b, s, e, raw(), now, ctx, events, move.name);
-  if ((pick === 'guardian' || pick === 'all') && companion(s)) hurtCompanion(b, s, e, raw() * (b.cover === false && pick === 'guardian' && !special ? 1 : 1), now, ctx, events, move.name);
+  if ((pick === 'guardian' || pick === 'all') && companion(s)) hurtCompanion(b, s, e, raw(), now, ctx, events, move.name);
   const every = st.boss ? 2 : 3;
   if (alive(e) && st.acts % every === every - 1) { st.charging = true; events.push(ev(b, s, 'telegraph', { src: e.id, move: d.special.name, text: `${e.name} readies ${d.special.name}! Stagger it to break it.` })); }
 }
@@ -340,9 +346,9 @@ export function advance(b, s, now = Date.now(), ctx = {}) {
     if (b.cursor >= b.turnOrder.length) { endRound(b, s, now, ctx, events); continue; }
     const id = b.turnOrder[b.cursor];
     if (id === 'player') { b.phase = 'command'; events.push(ev(b, s, 'turn', { who: 'player', tl: timeline(b, s) })); return { b, events }; }
+    if (!present(b, s, id)) { b.cursor++; continue; }
+    events.push(ev(b, s, 'turn', { who: id, tl: timeline(b, s) }));   // the actor is still `current` in this strip
     b.cursor++;
-    if (!present(b, s, id)) continue;
-    events.push(ev(b, s, 'turn', { who: id, tl: timeline(b, s) }));
     if (id === 'guardian') companionTurn(b, s, now, ctx, events);
     else foeTurn(b, s, find(s, id), now, ctx, events);
   }
@@ -367,7 +373,7 @@ export function act(b, s, cmd, ctx) {
   switch (cmd.id) {
     case 'attack': {
       const type = attackType(s); spend();
-      events.push(ev(b, s, 'act', { src: 'player', label: 'Attack', dtype: type, kindle: k, targets: [target.id] }));
+      events.push(ev(b, s, 'act', { src: 'player', label: 'Attack', dtype: type, spent: k, targets: [target.id] }));
       const verb = p.weapon === 'bow' ? 'looses an arrow at' : 'strikes';
       for (let i = 0; i <= k; i++) { const t = alive(target) ? target : livingFoes(b, s)[0]; if (!t) break; strike(b, s, t, opts({ type, verb, idx: i, n: k + 1 })); }
       break;
@@ -388,13 +394,14 @@ export function act(b, s, cmd, ctx) {
       const item = ITEM_LIST.includes(cmd.item) ? cmd.item : null;
       if (!item || !(s.inv[item] > 0)) { spent = false; events.push(ev(b, s, 'note', { text: 'Nothing like that in your pack.' })); break; }
       const hp = p.hp, mp = p.mp, text = ctx.use ? ctx.use(s, item) : 'Used.';
-      events.push(ev(b, s, 'heal', { src: 'player', dst: 'player', item, amount: Math.round(p.hp - hp), focus: Math.round(p.mp - mp), text }));
+      events.push(ev(b, s, 'heal', { src: 'player', dst: 'player', item, amount: Math.round(p.hp - hp), mana: Math.round(p.mp - mp), text }));
       break;
     }
     case 'flee': {
       const chance = fleeChance(b, s, k); spend();
       if (b.rand() < chance) {
         events.push(ev(b, s, 'end', { result: 'fled', text: 'You break away!' })); b.result = 'fled'; b.phase = 'over';
+        settle(b, s);                                       // summary for the result screen; a clean getaway earns a longer grace
         for (const e of foes) { e.cd = Math.max(e.cd || 0, 3); e.path = []; }
         s.battleGrace = s.elapsed + GRACE + 3;
         return { events, over: true };
@@ -414,13 +421,14 @@ export function act(b, s, cmd, ctx) {
 
 function useSkill(b, s, sk, target, k, now, ctx, events) {
   const p = s.player, name = heroName(s), say = (t, data = {}) => events.push(ev(b, s, 'note', { src: 'player', text: t, ...data }));
-  const act = targets => events.push(ev(b, s, 'act', { src: 'player', label: sk.name, skill: sk.id, dtype: sk.type, kindle: k, spell: !!sk.spell, targets }));
-  const hitAll = (power, verb) => { for (const e of livingFoes(b, s)) strike(b, s, e, { type: sk.type, power, spell: sk.spell, verb, now, ctx, events }); };
+  const act = targets => events.push(ev(b, s, 'act', { src: 'player', label: sk.name, skill: sk.id, dtype: sk.type, spent: k, spell: !!sk.spell, targets }));
+  // One sweep over every living foe; Kindle adds whole extra sweeps (each removes a Ward pip from foes weak to it).
+  const hitAll = (power, verb, sweeps = 1) => { for (let i = 0; i < sweeps; i++) for (const e of livingFoes(b, s)) strike(b, s, e, { type: sk.type, power, spell: sk.spell, verb, now, ctx, events, idx: i, n: sweeps }); };
   const healHero = n => { const before = p.hp; p.hp = Math.min(p.maxHp, p.hp + n); events.push(ev(b, s, 'heal', { src: 'player', dst: 'player', amount: Math.round(p.hp - before), text: `${name} recovers ${Math.round(p.hp - before)} health.` })); };
   const ids = () => livingFoes(b, s).map(e => e.id);
   switch (sk.id) {
-    case 'shield-wall': act(['player']); b.wallUntil = b.round + sk.rounds - 1 + k; b.guard = true; say(`${name} raises a shield wall: half damage to the party for ${sk.rounds + k} rounds.`); break;
-    case 'cleave': act(ids()); hitAll(sk.power * (1 + .4 * k), 'cleaves'); break;
+    case 'shield-wall': act(['player']); b.wallUntil = b.round + sk.rounds - 1 + k; say(`${name} raises a shield wall: half damage to the party for ${sk.rounds + k} rounds.`); break;
+    case 'cleave': act(ids()); hitAll(sk.power, 'cleaves', 1 + k); break;
     case 'rallying-cry': act(ids()); healHero(sk.heal + 12 * k); hitAll(sk.power, 'shouts down'); break;
     case 'arcane-volley': {
       act(ids()); const n = sk.bolts + k;
@@ -428,8 +436,8 @@ function useSkill(b, s, sk, target, k, now, ctx, events) {
       for (let i = 0; i < n; i++) { const list = livingFoes(b, s); if (!list.length) break; const start = Math.max(0, list.indexOf(alive(target) ? target : list[0])); strike(b, s, list[(start + i) % list.length], { type: sk.type, power: sk.power, spell: true, verb: 'blasts', now, ctx, events, idx: i, n }); }
       break;
     }
-    case 'frost-nova': act(ids()); hitAll(sk.power * (1 + .4 * k), 'freezes'); for (const e of livingFoes(b, s)) b.st[e.id].slowUntil = Math.max(b.st[e.id].slowUntil, b.round + sk.slow); say('The frost slows every foe: they act last next round.'); break;
-    case 'mana-surge': { act(['player']); const before = p.mp; p.mp = Math.min(p.maxMp, p.mp + Math.round(p.maxMp / 2)); healHero(sk.heal + 10 * k); events.push(ev(b, s, 'heal', { src: 'player', dst: 'player', amount: 0, focus: Math.round(p.mp - before), text: `${name} draws in ${Math.round(p.mp - before)} focus.` })); break; }
+    case 'frost-nova': act(ids()); hitAll(sk.power, 'freezes', 1 + k); for (const e of livingFoes(b, s)) b.st[e.id].slowUntil = Math.max(b.st[e.id].slowUntil, b.round + sk.slow); say('The frost slows every foe: they act last next round.'); break;
+    case 'mana-surge': { act(['player']); const before = p.mp; p.mp = Math.min(p.maxMp, p.mp + Math.round(p.maxMp / 2)); healHero(sk.heal + 10 * k); events.push(ev(b, s, 'heal', { src: 'player', dst: 'player', amount: 0, mana: Math.round(p.mp - before), text: `${name} draws in ${Math.round(p.mp - before)} mana.` })); break; }
     case 'piercing-shot': case 'spirit-lash': case 'power-strike': {
       act([target.id]);
       const verb = sk.id === 'piercing-shot' ? 'pierces' : sk.id === 'spirit-lash' ? 'lashes' : 'smashes';
@@ -458,7 +466,7 @@ function useSkill(b, s, sk, target, k, now, ctx, events) {
       // A recalled companion joins the turn order from the next round (orderFor reads it fresh).
       break;
     }
-    case 'sweeping-blow': act(ids()); hitAll(sk.power * (1 + .4 * k), 'sweeps'); break;
+    case 'sweeping-blow': act(ids()); hitAll(sk.power, 'sweeps', 1 + k); break;
     case 'second-wind': act(['player']); healHero(sk.heal + 10 * k); break;
     default: act([target.id]); strike(b, s, target, { type: sk.type, power: sk.power || 1, spell: sk.spell, now, ctx, events });
   }

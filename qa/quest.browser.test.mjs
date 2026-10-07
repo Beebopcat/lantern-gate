@@ -239,7 +239,7 @@ if(ONLY.includes('3')){
 // ------------------------------------------------------------------------------------------------------------------
 console.log('page 4: progress and ready banners from real play (buying seasoned wood from a baker)');
 if(ONLY.includes('4')){
-  const W=await import('/home/claude/wt/Q/game/world.js');
+  const W=await import(new URL('../game/world.js',import.meta.url).href);
   const baker=W.NPCS.find(n=>n.role==='baker'&&n.town==='hearth')||W.NPCS.find(n=>n.role==='baker');
   const page=await newPage(b,{w:1280,h:720});
   await seed(page,{classId:'warrior',name:'Tester',mutate:base(beside(baker.id)+"s.player.gold=300;s.quest.timber='active';s.inv.wood=3;s.trackedQuest='timber';")});

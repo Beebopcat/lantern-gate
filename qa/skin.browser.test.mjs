@@ -59,10 +59,10 @@ for(const [w,h] of SIZES){
     ok((await hscroll(page)).doc<=0,`${tag} no horizontal scroll on the title`);
     ok((await noWhite(page,tag)).length===0,`${tag} no light surfaces on the title ${await noWhite(page,tag)}`);
     await page.click('#starter-menu [data-starter=new]');await page.waitForSelector('#creation-form');await page.waitForTimeout(500);
-    const c=await page.evaluate(()=>{const cv=document.getElementById('creation-portrait'),btn=[...document.querySelectorAll('.stage-btn')].map(x=>{const r=x.getBoundingClientRect();return [r.width,r.height];});const r=cv.getBoundingClientRect();return {w:r.width,h:r.height,btn,name:document.getElementById('calling-name').textContent,steps:[...document.querySelectorAll('.jr-step')].map(x=>{const r=x.getBoundingClientRect();return [r.width,r.height];}),cards:[...document.querySelectorAll('.calling-card')].length,focus:document.activeElement.id};});
+    const c=await page.evaluate(()=>{const cv=document.getElementById('creation-portrait'),btn=[...document.querySelectorAll('.stage-btn')].map(x=>{const r=x.getBoundingClientRect();return [r.width,r.height];});const r=cv.getBoundingClientRect();return {w:r.width,h:r.height,btn,name:document.getElementById('calling-name').textContent,steps:[...document.querySelectorAll('.jr-step')].filter(x=>x.offsetParent).map(x=>{const r=x.getBoundingClientRect();return [r.width,r.height];}),cards:[...document.querySelectorAll('.calling-card')].length,focus:document.activeElement.id};});
     ok(c.h>=140&&c.w>=100,`${tag} hero preview is large (${Math.round(c.w)}x${Math.round(c.h)})`);
     ok(c.btn.length===3&&c.btn.every(([x,y])=>x>=44&&y>=44),`${tag} stage buttons are at least 44px ${JSON.stringify(c.btn.map(v=>v.map(Math.round)))}`);
-    ok(c.steps.length===8&&c.steps.every(([x,y])=>x>=44&&y>=44),`${tag} appearance steppers are at least 44px`);
+    ok(c.steps.length===14&&c.steps.every(([x,y])=>x>=44&&y>=44),`${tag} appearance steppers (seven visible rows) are at least 44px (${c.steps.length})`);
     ok(c.focus==='character-name'&&c.cards===4&&c.name==='Warrior',`${tag} name is focused, four callings, Warrior first`);
     const before=await pixels(page,'#creation-portrait');ok(/^[1-9]\d{2,}:/.test(before),`${tag} hero sprite is painted (${before.split(':')[0]} pixels)`);
     await page.click('#stage-turn-right');await page.waitForTimeout(250);const right=await pixels(page,'#creation-portrait');ok(right!==before,`${tag} Turn right changes the facing`);

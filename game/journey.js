@@ -5,6 +5,7 @@ import {CREATURES,CASTLE_CREATURE_SLOTS} from './creatures.js';
 import {OUTFITS} from './life.js';
 import {classCooldownScale} from './progression.js';
 import * as G from './companions.js';
+import {SKIN_TONES,HAIR_COLORS,HAIR_STYLES,lookValid} from './appearance.js';
 const hasClass=id=>Object.hasOwn(CLASSES,id);
 
 export const CLASSES = {
@@ -38,15 +39,18 @@ export function valid(s){
   if(!j.residents.every(r=>['castle-frankenstein','castle-wolfman','castle-dracula'].includes(r.id)&&MAPS[r.map]&&finite(r.x,80)&&finite(r.y,80))||new Set(j.residents.map(r=>r.id)).size!==3)return false;
   if(j.decoy&&(!MAPS[j.decoy.map]||!finite(j.decoy.x,384)||!finite(j.decoy.y,384)||!finite(j.decoy.until)))return false;
   if(!Object.entries(j.markets).every(([id,m])=>NPCS.some(n=>n.id===id)&&record(m)&&finite(m.cash)&&record(m.stock)&&Object.entries(m.stock).every(([k,v])=>ITEMS[k]?.price&&integer(v,200))))return false;
-  return (!j.created||(typeof s.player.name==='string'&&s.player.name.length>0&&s.player.name.length<=28&&hasClass(s.player.classId)&&['warm','earth','deep','pale','olive'].includes(s.player.skin)&&['black','brown','silver','auburn','gold'].includes(s.player.hair)))&&['isometric','third-person'].includes(s.settings.cameraMode??'third-person')&&finite(s.settings.cameraPitch??.32,1.2)&&G.valid(s);
+  return (!j.created||(typeof s.player.name==='string'&&s.player.name.length>0&&s.player.name.length<=28&&hasClass(s.player.classId)&&SKIN_TONES.includes(s.player.skin)&&HAIR_COLORS.includes(s.player.hair)&&lookValid(s.player)))&&['isometric','third-person'].includes(s.settings.cameraMode??'third-person')&&finite(s.settings.cameraPitch??.32,1.2)&&G.valid(s);
 }
-export function create(s,{name,classId,skin='warm',hair='brown',outfit='traveler',gender='female',companionId=null}){
+export function create(s,{name,classId,skin='warm',hair='brown',outfit='traveler',gender='female',companionId=null,hairStyle,eyes,face,headwear}){
   const j=upgrade(s);if(j.created)return 'This character already has a calling.';
-  name=String(name).trim().replace(/[\x00-\x1f<>]/g,'').slice(0,28);if(!name||!CREATABLE.includes(classId)||!Object.hasOwn(OUTFITS,outfit)||!['warm','earth','deep','pale','olive'].includes(skin)||!['black','brown','silver','auburn','gold'].includes(hair)||!['female','male','nonbinary'].includes(gender))return 'Choose a name, appearance, and calling.';
+  name=String(name).trim().replace(/[\x00-\x1f<>]/g,'').slice(0,28);if(!name||!CREATABLE.includes(classId)||!Object.hasOwn(OUTFITS,outfit)||!SKIN_TONES.includes(skin)||!HAIR_COLORS.includes(hair)||!['female','male','nonbinary'].includes(gender)||!lookValid({hairStyle,eyes,face,headwear})||hairStyle!==undefined&&!HAIR_STYLES[gender].includes(hairStyle))return 'Choose a name, appearance, and calling.';
   // Summoners and Rangers must bind exactly one companion from their own roster; every other calling must bind none.
   if(G.isCompanionClass(classId)){if(!G.inRoster(classId,companionId))return `Choose one ${G.rosterFor(classId).role} from the ${CLASSES[classId].name} roster.`;}
   else if(companionId)return 'This calling has no bound companion.';
-  Object.assign(s.player,{name,classId,skin,hair,gender});j.created=true;j.introSeen=true;j.tutorial=0;j.origin={x:s.player.x,y:s.player.y};
+  Object.assign(s.player,{name,classId,skin,hair,gender});
+  // optional look choices are stored only when made, so a save without them keeps its old look
+  for(const [k,v] of Object.entries({hairStyle,eyes,face,headwear}))if(v!==undefined)s.player[k]=v;
+  j.created=true;j.introSeen=true;j.tutorial=0;j.origin={x:s.player.x,y:s.player.y};
   // Creation colors are cosmetic. A calling's starter kit is modest, fixed, and granted only once here.
   s.life.outfit=outfit; if(!s.life.outfits.includes(outfit))s.life.outfits.push(outfit);
   const p=s.player,inv=s.inv,kit={warrior(){inv.sword=(inv.sword||0)+1;inv.armor=(inv.armor||0)+1;p.armor=4;p.maxHp+=25;p.hp=p.maxHp;},summoner(){inv.tonic=(inv.tonic||0)+2;p.maxMp+=20;p.mp=p.maxMp;},mage(){inv.tonic=(inv.tonic||0)+3;p.maxMp+=30;p.mp=p.maxMp;},ranger(){inv.bow=(inv.bow||0)+1;p.weapon='bow';p.maxHp+=10;p.hp=p.maxHp;}};

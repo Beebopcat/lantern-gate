@@ -4,3 +4,4 @@ qa/shots/
 qa/*.png
 out/
 .DS_Store
+ev-*.png

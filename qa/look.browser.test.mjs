@@ -15,6 +15,7 @@ const geometry = page => page.evaluate(() => {
 
 for (const [w, h] of VIEWS) {
   const tag = `${w}x${h}`, page = await newPage(b, {w, h});
+  console.log('viewport', tag);
   await open(page); await page.waitForTimeout(1500);
   await page.click('#starter-menu [data-starter=new]'); await page.waitForSelector('#creation-form'); await page.waitForTimeout(1200);
   // the rows

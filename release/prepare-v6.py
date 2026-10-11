@@ -9,10 +9,10 @@
 # Nothing is uploaded or promoted here: run `node deploy.mjs stage`, verify the private stage in a browser, write browser-qa.json, then `node deploy.mjs promote`.
 import json, hashlib, os, shutil, sys
 
-W = r'C:\AI_Workspace\Creative_Projects\Active\Casey\PC-Project-2026-10-02\work'
-REPO = os.environ.get('LG_REPO', W + r'\lantern-gate-v5-src')
-OLD = W + r'\jrpg-v5-20261007-v5'
-HERE = os.environ.get('LG_RELEASE', W + r'\jrpg-v6-20261009-v6')
+W = r'C:\AI_Workspace\projects\lantern-gate-release'   # the old Creative_Projects\...\work folder is gone (PC reset); releases now live here
+REPO = os.environ.get('LG_REPO', W + r'\lantern-gate-src')
+OLD = W + r'\v5-base'
+HERE = os.environ.get('LG_RELEASE', W + r'\jrpg-v6-20261011-v6')
 PREFIX = 'demos/top-secret/lantern-gate/'
 BASE = 'dpl_REDACTED'
 ROLLBACK_KEPT = 'dpl_REDACTED'
@@ -24,6 +24,16 @@ ALLOW_DIRS = ('audio/orchestra/',)
 SKIP_SUFFIX = ('.log', '.DS_Store')
 sha = lambda p: hashlib.sha256(open(p, 'rb').read()).hexdigest()
 
+STATIC_OLD = OLD + r'\candidate\.vercel\output\static'
+if not os.path.exists(OLD + r'\public-manifest.json'):
+    # The v5 release folder was lost (the PC was reset). OLD\candidate was recovered byte for byte from the live deployment's own uploaded
+    # source (recover-v5-base.mjs: 13 tgz parts, each part's sha1 equal to Vercel's file id). Rebuild the manifest from it.
+    rows = []
+    for root, _, names in os.walk(STATIC_OLD):
+        for n in names:
+            p = os.path.join(root, n); rows.append({'path': os.path.relpath(p, STATIC_OLD).replace('\\', '/'), 'bytes': os.path.getsize(p), 'sha256': sha(p)})
+    rows.sort(key=lambda m: m['path'])
+    open(OLD + r'\public-manifest.json', 'w', newline='\n').write(json.dumps(rows, indent=1))
 prev = {m['path']: m for m in json.load(open(OLD + r'\public-manifest.json'))}
 GAME = REPO + r'\game'
 files = []
@@ -86,7 +96,8 @@ prep = {'frozenBaseUnchanged': True, 'base': BASE, 'baseManifestSha256': sha(OLD
 open(HERE + r'\preparation.json', 'w').write(json.dumps(prep, indent=1))
 
 # deploy.mjs for this release: the v5 script with the new base, rollback and change count (each replacement must hit exactly once)
-src = open(OLD + r'\deploy.mjs', encoding='utf-8').read()
+DEPLOY_SRC = OLD + r'\deploy.mjs' if os.path.exists(OLD + r'\deploy.mjs') else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'deploy.v5.mjs')   # the repo keeps a copy of v5's script
+src = open(DEPLOY_SRC, encoding='utf-8').read()
 # v5's deploy.mjs already accepts a real-Chrome verification (qa.realBrowser===true) in place of the built-in browser pane; that line is kept as is.
 assert "(qa.internalBrowser!==true&&qa.realBrowser!==true)||" in src
 for old, new in (("base='dpl_REDACTED',rollbackKept='dpl_REDACTED'", "base='%s',rollbackKept='%s'" % (BASE, ROLLBACK_KEPT)),

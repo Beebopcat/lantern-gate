@@ -49,6 +49,25 @@ for (const [g, name] of [['female', 'Lena'], ['male', 'Orrin'], ['female', 'The 
 // with the hat or hood off, the chosen style shows
 for (const classId of ['mage', 'ranger']) ok(hash(hero({classId, headwear: 'bare', hairStyle: 'twintails'})) !== hash(hero({classId, headwear: 'bare', hairStyle: 'bob'})), classId + ' bare head shows the chosen style');
 
+// residents (named townspeople) keep the original four styles: the new ones are for the creation screen
+{
+  const st = E.fresh(1); L.upgrade(st); let n = 0, bad = [];
+  for (const r of st.actors) {const sp = S.spriteFor({...r}); if (!sp || sp.type !== 'human') continue; n++; const ix = A.HAIR_STYLES[sp.gender].indexOf(sp.hairStyle); if (ix < 0 || ix >= A.DEFAULT_STYLES) bad.push(r.name + ':' + sp.hairStyle);}
+  ok(n > 60 && bad.length === 0, `${n} residents use only the original four hairstyles ${bad.slice(0, 5)}`);
+}
+// the classic 3D builder knows every hair colour the creation screen offers
+{
+  const src = (await import('node:fs')).readFileSync(ROOT + 'characters.js', 'utf8');
+  for (const c of A.HAIR_COLORS) ok(new RegExp(c + ":'#[0-9a-f]{6}'").test(src), '3D look has a colour for ' + c + ' hair');
+}
+// the knocked-out pose: tall knots and curls are drawn as their flat cousins, so nothing runs off the frame
+{
+  const ko = o => {const sh = S.spriteSheet(hero(o)), col = S.frameIndex('down', 0), f = new Uint8Array(sh.w * sh.h * 4); for (let y = 0; y < sh.h; y++) f.set(sh.data.subarray(((0 * sh.h + y) * sh.w * sh.cols + col * sh.w) * 4, ((0 * sh.h + y) * sh.w * sh.cols + col * sh.w + sh.w) * 4), y * sh.w * 4); return createHash('sha1').update(f).digest('hex');};
+  ok(ko({gender: 'male', hairStyle: 'topknot', name: 'KO'}) === ko({gender: 'male', hairStyle: 'tied', name: 'KO'}), 'knocked out, a topknot is drawn as tied-back hair');
+  ok(ko({gender: 'male', hairStyle: 'curls', name: 'KO'}) === ko({gender: 'male', hairStyle: 'short', name: 'KO'}), 'knocked out, curls are drawn as short hair');
+  ok(ko({gender: 'male', hairStyle: 'mane', name: 'KO'}) !== ko({gender: 'male', hairStyle: 'short', name: 'KO'}), 'other styles still differ when knocked out');
+}
+
 // ---- saves
 const fresh = () => {const s = E.fresh(NOW); L.upgrade(s); J.upgrade(s); return s;};
 {

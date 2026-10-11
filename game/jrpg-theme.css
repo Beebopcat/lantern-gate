@@ -569,6 +569,8 @@ dialog#panel.creation-dialog #panel-title::after{transform:scaleX(-1)}
   #panel.creation-dialog #calling-description{grid-template-columns:repeat(3,minmax(0,1fr))}
   #creation-form .appearance-fields{grid-template-columns:1fr}
 }
+/* Narrow tablets and small windows: the form column is about 430px, so one option per row keeps the value readable beside its label */
+@media (min-width:780px) and (max-width:1000px){#creation-form .appearance-fields{grid-template-columns:1fr}}
 @media (max-width:600px){#panel.creation-dialog .companion-cards,#panel.creation-dialog #calling-description{grid-template-columns:1fr}}
 /* Phones: one column */
 @media (max-width:560px){

@@ -376,20 +376,22 @@ function hairBehind(B, sp, r, view) {
 }
 function hairOverBack(B, sp, r) {
   if (sp.hood || sp.helm === 'full') return;
-  const st = sp.hairStyle, H = sp.hair, b = r.bob + (r.head || 0), y0 = 10 + b, cx = 20 + (r.hx || 0), m = new Mask(HW, HH);
+  const st = sp.hairStyle, H = sp.hair;
+  if (sp.hat && (st === 'curls' || st === 'topknot' || st === 'bun')) return;   // the hat covers the crown
+  const hat = !!sp.hat, tailTop = hat ? 8 : 3,  b = r.bob + (r.head || 0), y0 = 10 + b, cx = 20 + (r.hx || 0), m = new Mask(HW, HH);
   if (st === 'long') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 19], [cx + 5, y0 + 21], [cx, y0 + 20], [cx - 5, y0 + 21], [cx - 8, y0 + 19]]);
   if (st === 'ponytail') {m.cap(cx, y0 + 3, cx, y0 + 9, 2.2); m.cap(cx, y0 + 9, cx + 1, y0 + 17, 1.8); m.cap(cx + 1, y0 + 17, cx + 1, y0 + 19, 1);}
   if (st === 'braid') for (let i = 0; i < 5; i++) m.ell(cx, y0 + 15 + i * 2, 1.9, 1.4);
   if (st === 'tied') m.cap(cx, y0 + 13, cx, y0 + 17, 1.3);
   if (st === 'bun') m.ell(cx, y0, 3.6, 3);
-  if (st === 'twintails') for (const d of [-1, 1]) {m.cap(cx + d * 6, y0 + 3, cx + d * 8.5, y0 + 9, 1.9); m.cap(cx + d * 8.5, y0 + 9, cx + d * 8.5, y0 + 16, 1.7); m.cap(cx + d * 8.5, y0 + 16, cx + d * 7.5, y0 + 19, 1.1);}
+  if (st === 'twintails') for (const d of [-1, 1]) {m.cap(cx + d * 6, y0 + tailTop, cx + d * 8.5, y0 + 9, 1.9); m.cap(cx + d * 8.5, y0 + 9, cx + d * 8.5, y0 + 16, 1.7); m.cap(cx + d * 8.5, y0 + 16, cx + d * 7.5, y0 + 19, 1.1);}
   if (st === 'waves') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 17], [cx + 6, y0 + 19], [cx + 4, y0 + 17], [cx + 2, y0 + 19], [cx, y0 + 17], [cx - 2, y0 + 19], [cx - 4, y0 + 17], [cx - 6, y0 + 19], [cx - 8, y0 + 17]]);
   if (st === 'mane') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 16], [cx + 6, y0 + 18], [cx + 4, y0 + 16], [cx + 2, y0 + 18], [cx, y0 + 16], [cx - 2, y0 + 18], [cx - 4, y0 + 16], [cx - 6, y0 + 18], [cx - 8, y0 + 16]]);
   if (st === 'topknot') {m.ell(cx, y0 - 2.6, 3, 2.6); m.cap(cx + 2, y0 - 3.6, cx + 4.5, y0 - 2, 1);}
   if (st === 'curls') for (const [dx, dy, r] of [[-7.5, 1.5, 2.6], [-5, -1.5, 2.8], [-1.5, -2.6, 2.9], [2.5, -2.4, 2.9], [5.5, -.8, 2.8], [7.8, 2, 2.6], [-8.4, 6, 2.2], [8.4, 6, 2.2]]) m.ell(cx + dx, y0 + dy, r, r);
   if (m.empty()) return;
   paint(B, m, H, {shade: st === 'bun' || st === 'curls' || st === 'topknot' ? 'ball' : 'cyl', contour: 'd'});
-  if (st === 'twintails') for (const d of [-1, 1]) dot(B, cx + d * 6, y0 + 3, sp.tie);
+  if (st === 'twintails' && !hat) for (const d of [-1, 1]) dot(B, cx + d * 6, y0 + 3, sp.tie);
   if (st === 'topknot') {dot(B, cx - 1, y0 - 1, sp.tie); dot(B, cx, y0 - 1, sp.tie);}
   if (st === 'long') {for (const x of [cx - 4, cx - 1, cx + 3]) for (let y = y0 + 14; y < y0 + 20; y += 1) if (m.on(x, y)) B.put(x, y, H.s);}
   if (st === 'braid') for (let i = 0; i < 5; i++) {dot(B, cx - 1, y0 + 15 + i * 2, H.s); dot(B, cx + 1, y0 + 16 + i * 2, H.s);}
@@ -894,7 +896,7 @@ function humanSide(B, sp, pose, f) {
 function humanDown(B, sp) {
   // long skirts and tall hats rotate badly: the robe is drawn short and a wizard hat lies on the ground behind
   const longSkirt = ['robe', 'gown', 'longcoat'].includes(sp.garment), wiz = sp.hat === 'wizard';
-  const T = new Buf(HW, HH); humanSide(T, {...sp, downPose: true, garment: longSkirt ? 'coat' : sp.garment, hat: wiz ? null : sp.hat, gear: {...sp.gear, quiver: false, bow: false, charm: false, staff: false, spear: false, lantern: false, tool: null, book: false}}, 'down', 0);
+  const T = new Buf(HW, HH); humanSide(T, {...sp, hairStyle: {topknot: 'tied', curls: 'short'}[sp.hairStyle] || sp.hairStyle, downPose: true, garment: longSkirt ? 'coat' : sp.garment, hat: wiz ? null : sp.hat, gear: {...sp.gear, quiver: false, bow: false, charm: false, staff: false, spear: false, lantern: false, tool: null, book: false}}, 'down', 0);
   let minX = HW, maxX = 0, minY = HH, maxY = 0;
   for (let y = 0; y < HH; y++) for (let x = 0; x < HW; x++) if (T.a(x, y)) {minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);}
   // rotate clockwise: face up, head to the right
@@ -1020,7 +1022,7 @@ function npcSpec(a) {
   const skin = SKIN[a.skin] ? a.skin : ['warm', 'earth', 'pale', 'deep', 'olive'][seed % 5];
   const hair = HAIR[a.hair] ? a.hair : ['black', 'brown', 'gold', 'silver', 'auburn'][Math.floor(seed / 7) % 5];
   const styles = HAIR_STYLES[gender], sp = baseHuman(gender, skin, hair, seed);
-  sp.hairStyle = styles[Math.floor(seed / 13) % styles.length]; sp.role = role; build(sp, 'normal');
+  sp.hairStyle = styles[Math.floor(seed / 13) % DEFAULT_STYLES]; sp.role = role;   // residents keep the four original styles; the newer ones are for the creation screen build(sp, 'normal');
   const w = a.wardrobe, base = w?.coat || ROLE_COLOR[prof] || ROLE_COLOR[role] || '#5a6a72';
   sp.coat = rampOf(base); sp.trim = rampOf(w?.trim || '#d6c49a'); sp.pants = rampOf(w?.pants || '#4a4650');
   sp.garment = STYLE_GARMENT[w?.style] || (gender === 'female' ? 'gown' : 'tunic');

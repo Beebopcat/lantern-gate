@@ -54,6 +54,11 @@ for (const classId of ['mage', 'ranger']) ok(hash(hero({classId, headwear: 'bare
   const st = E.fresh(1); L.upgrade(st); let n = 0, bad = [];
   for (const r of st.actors) {const sp = S.spriteFor({...r}); if (!sp || sp.type !== 'human') continue; n++; const ix = A.HAIR_STYLES[sp.gender].indexOf(sp.hairStyle); if (ix < 0 || ix >= A.DEFAULT_STYLES) bad.push(r.name + ':' + sp.hairStyle);}
   ok(n > 60 && bad.length === 0, `${n} residents use only the original four hairstyles ${bad.slice(0, 5)}`);
+  // every resident is fully built (a missing build() step leaves the body sizes undefined and the sheet never finishes drawing)
+  const unbuilt = st.actors.filter(r => {const sp = S.spriteFor({...r}); return sp && sp.type === 'human' && !(Number.isFinite(sp.shoulder) && Number.isFinite(sp.waist) && Number.isFinite(sp.hip));}).map(r => r.name);
+  ok(unbuilt.length === 0, 'every resident sprite has its body sizes ' + unbuilt.slice(0, 5));
+  let drawn = 0; for (const r of st.actors.slice(0, 12)) {const sh = S.spriteSheet({...r}); if (sh && sh.data.length) drawn++;}
+  ok(drawn === 12, 'residents draw a full sheet (' + drawn + ' of 12)');
 }
 // the classic 3D builder knows every hair colour the creation screen offers
 {

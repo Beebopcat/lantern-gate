@@ -1022,7 +1022,8 @@ function npcSpec(a) {
   const skin = SKIN[a.skin] ? a.skin : ['warm', 'earth', 'pale', 'deep', 'olive'][seed % 5];
   const hair = HAIR[a.hair] ? a.hair : ['black', 'brown', 'gold', 'silver', 'auburn'][Math.floor(seed / 7) % 5];
   const styles = HAIR_STYLES[gender], sp = baseHuman(gender, skin, hair, seed);
-  sp.hairStyle = styles[Math.floor(seed / 13) % DEFAULT_STYLES]; sp.role = role;   // residents keep the four original styles; the newer ones are for the creation screen build(sp, 'normal');
+  // residents keep the four original styles; the newer ones are for the creation screen
+  sp.hairStyle = styles[Math.floor(seed / 13) % DEFAULT_STYLES]; sp.role = role; build(sp, 'normal');
   const w = a.wardrobe, base = w?.coat || ROLE_COLOR[prof] || ROLE_COLOR[role] || '#5a6a72';
   sp.coat = rampOf(base); sp.trim = rampOf(w?.trim || '#d6c49a'); sp.pants = rampOf(w?.pants || '#4a4650');
   sp.garment = STYLE_GARMENT[w?.style] || (gender === 'female' ? 'gown' : 'tunic');

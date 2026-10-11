@@ -70,6 +70,10 @@ STATIC = HERE + r'\candidate\.vercel\output\static'
 if not os.path.isdir(HERE + r'\candidate'):
     os.makedirs(HERE, exist_ok=True)
     shutil.copytree(OLD + r'\candidate', HERE + r'\candidate')
+# Link the candidate to the casey-site project. The recovered base has no .vercel/project.json (the CLI does not upload it); without it
+# `vercel deploy` creates a NEW project named "candidate" and stages there (this happened once, on 2026-10-11).
+os.makedirs(HERE + r'\candidate\.vercel', exist_ok=True)
+open(HERE + r'\candidate\.vercel\project.json', 'w', newline='\n').write(json.dumps({'projectId': 'prj_REDACTED', 'orgId': 'team_REDACTED', 'projectName': 'casey-site'}, separators=(',', ':')))
 for c in changes:
     d = STATIC + '\\' + c['path'].replace('/', '\\')
     os.makedirs(os.path.dirname(d), exist_ok=True)
@@ -101,7 +105,9 @@ src = open(DEPLOY_SRC, encoding='utf-8').read()
 # v5's deploy.mjs already accepts a real-Chrome verification (qa.realBrowser===true) in place of the built-in browser pane; that line is kept as is.
 assert "(qa.internalBrowser!==true&&qa.realBrowser!==true)||" in src
 for old, new in (("base='dpl_REDACTED',rollbackKept='dpl_REDACTED'", "base='%s',rollbackKept='%s'" % (BASE, ROLLBACK_KEPT)),
-                 ("const CHANGES=80;", "const CHANGES=%d;" % len(real))):
+                 ("const CHANGES=80;", "const CHANGES=%d;" % len(real)),
+                 # refuse to upload unless the candidate is linked to the casey-site project (otherwise the CLI creates a new project)
+                 ("  const r=await run(['deploy','--prebuilt','--prod'", "  const link=JSON.parse(await fs.readFile(path.join(candidate,'.vercel/project.json'),'utf8'));if(link.projectId!==project||link.orgId!==team)throw Error('Candidate is not linked to the casey-site project');\n  const r=await run(['deploy','--prebuilt','--prod'")):
     assert src.count(old) == 1, old
     src = src.replace(old, new)
 open(HERE + r'\deploy.mjs', 'w', encoding='utf-8', newline='\n').write(src)

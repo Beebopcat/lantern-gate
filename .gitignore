@@ -5,3 +5,4 @@ qa/*.png
 out/
 .DS_Store
 ev-*.png
+bt-*.png

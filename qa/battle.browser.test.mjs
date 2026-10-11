@@ -73,7 +73,7 @@ for(const [classId,kind] of LIST){
   await page.keyboard.press('Escape');ok(!(await page.$('#battle .b-foe.pick')),`${classId}: Escape leaves target selection`);
   // ---- the fight: Kindle spent on the first attack, a skill on the second command, then attacks
   const t0=Date.now();let step=0,skillUsed=false,reveal=null;
-  while(Date.now()-t0<170000){
+  while(Date.now()-t0<(Number(process.env.BATTLE_MS)||170000)){   // BATTLE_MS: allow more time on a slow software-GL machine
     if((await mode(page))==='over')break;
     await page.waitForFunction(()=>['menu','over'].includes(document.getElementById('battle').dataset.mode),null,{timeout:60000});
     if((await mode(page))==='over')break;

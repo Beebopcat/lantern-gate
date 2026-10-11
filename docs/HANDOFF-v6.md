@@ -20,7 +20,7 @@ Plan:
 4. Test `qa/buildings.test.mjs`: build every building of every town, hash the exterior mesh summary and the interior prop layout, assert all are different, shops carry a sign + awning + marker, and prop ids/types for routines are unchanged. Screenshots at 1280x720, 768x1024, 390x844, 844x390.
 
 ### B. World dressing and creature variety
-- Per-town identity (palette, props, lamp style), scenery clusters (orchards, stone walls, wells, market stalls, cemetery fences, reeds and boats by the river), more NPC variety (use the 8 hairstyles x 10 colours already in `sprites.js`, plus hats/aprons by role), and creature and monster silhouettes in `sprites.js` (`creatureSpec`, quad creatures) and `creatures.js`.
+- Per-town identity (palette, props, lamp style), scenery clusters (orchards, stone walls, wells, market stalls, cemetery fences, reeds and boats by the river), more NPC variety (v6 deliberately keeps residents on the original four styles; `npcSpec` in `sprites.js` indexes `HAIR_STYLES[gender]` with `% DEFAULT_STYLES`: widen that, and mind hats and helmets, to use all 8 styles x 10 colours), and creature and monster silhouettes in `sprites.js` (`creatureSpec`, quad creatures) and `creatures.js`.
 - Keep `solid()` collisions consistent with new props (`PROP_RADIUS`, `slideOffProps` in `engine.js`).
 
 ### C. Then release v7

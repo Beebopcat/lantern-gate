@@ -9,10 +9,11 @@ For the session linked to Casey's Windows PC (device owner-pc). Prepared and tes
 ## 1. What is in v6
 - **Orchestral soundtrack**: 11 original hi-fi tracks and a victory stinger in `audio/orchestra/` (12 mp3, 32 MB) plus the soundfont licence file. Rendered with FluidSynth and the MuseScore General SoundFont (MIT, CC0 parts; licence shipped beside the files and linked from the credits). New music modes: boss, shop, inn. The 18 classic tracks stay and the hi-fi ones are chosen 80% of the time. The game stays silent until the player turns music on. Built by `tools/music/` (not part of the site).
 - **Character looks** (creation screen): 8 hairstyles per body, 10 hair colours, 7 eye colours, face marks (freckles, scar, beauty mark), and bare head for Mage and Ranger. The hairstyle list follows the chosen body (Female / Male). Optional save fields `hairStyle`, `eyes`, `face`, `headwear`: old saves keep their look and stay valid.
+- Fixes from the pre-release review: the victory fanfare stops when music is turned off, the tab is hidden or volume is 0 (and no longer has a 5% floor); "Next track" works in shops, inns and boss fights; townspeople keep their original four hairstyles; the classic 3D look draws the new hair colours; back-view knots/curls no longer sit over hats; one option per row on narrow tablets.
 - Not in v6: building/shop redesign and world dressing (see `HANDOFF-v6.md`).
 
-## 2. Exact files that change on the live site (22, all under `demos/top-secret/lantern-gate/`)
-Modified (8): `audio.js`, `battle-ui.js`, `journey-ui.js`, `journey.js`, `render.js`, `rpg.js`, `soundtrack.js`, `sprites.js`.
+## 2. Exact files that change on the live site (24, all under `demos/top-secret/lantern-gate/`)
+Modified (10): `audio.js`, `battle-ui.js`, `characters.js`, `journey-ui.js`, `journey.js`, `jrpg-theme.css`, `render.js`, `rpg.js`, `soundtrack.js`, `sprites.js`.
 Added (14): `appearance.js`, `audio/orchestra/SOUNDFONT-LICENSE.txt`, and 12 mp3 in `audio/orchestra/`: `a-bed-for-the-night`, `beneath-the-keepers-hall`, `gate-of-lanterns`, `hearthwick-morning`, `lantern-raised`, `lanterns-on-the-water`, `market-square`, `moors-at-dusk`, `open-for-trade`, `steel-and-starlight`, `the-hollow-warden`, `the-river-road`.
 The authoritative list is `release/expected-changes-v6.json`; `release/prepare-v6.py` asserts that the candidate differs from the live v5 payload in exactly those files. Every other file under `audio/` (the live recordings) is never overlaid. `kokoro-daemon.py` is never shipped.
 

@@ -3,13 +3,14 @@
 import {launch, newPage, open, snapshot, audioCounts, ok, summary, BASE} from './lib.mjs';
 const shotPrefix = process.argv[2] || null;
 const b = await launch();
-const VIEWS = [[1280, 720], [768, 1024], [390, 844], [844, 390]];
+const VIEWS = [[1280, 720], [768, 1024], [390, 844], [844, 390], [820, 1180]];   // 820x1180 is the narrow-tablet case (form column about 430px)
 const preview = page => page.evaluate(() => {const cv = document.getElementById('creation-portrait'), d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let h = 0; for (let i = 0; i < d.length; i += 4 * 7) h = (Math.imul(h, 31) + d[i] + d[i + 1] * 3 + d[i + 2] * 7 + d[i + 3]) | 0; return h;});
 const options = (page, id) => page.evaluate(id => [...document.querySelectorAll('#' + id + ' option')].map(o => o.value), id);
 const geometry = page => page.evaluate(() => {
   const el = document.documentElement, rows = [...document.querySelectorAll('#creation-form .jr-option:not([hidden])')];
   const small = [...document.querySelectorAll('#creation-form .jr-step, #creation-form select')].filter(e => e.offsetParent && (e.getBoundingClientRect().width < 43.5 || e.getBoundingClientRect().height < 43.5)).map(e => e.id || e.className);
-  return {hscroll: el.scrollWidth > el.clientWidth, rows: rows.length, small, clipped: rows.filter(r => r.scrollWidth > r.clientWidth + 1).length};
+  const narrow = [...document.querySelectorAll('#creation-form .jr-option:not([hidden]) select')].filter(e => e.getBoundingClientRect().width < 90).map(e => e.id + ':' + Math.round(e.getBoundingClientRect().width));
+  return {hscroll: el.scrollWidth > el.clientWidth, rows: rows.length, small, narrow, clipped: rows.filter(r => r.scrollWidth > r.clientWidth + 1).length};
 });
 
 for (const [w, h] of VIEWS) {
@@ -26,7 +27,7 @@ for (const [w, h] of VIEWS) {
   ok((await options(page, 'character-face')).join() === 'none,freckles,scar,mark', `${tag}: face marks`);
   ok(await page.locator('#headwear-row').isHidden(), `${tag}: no headwear row for a warrior`);
   const g = await geometry(page);
-  ok(!g.hscroll && g.small.length === 0 && g.clipped === 0, `${tag}: no sideways scroll, touch targets 44px, rows not clipped ${JSON.stringify(g)}`);
+  ok(!g.hscroll && g.small.length === 0 && g.clipped === 0 && g.narrow.length === 0, `${tag}: no sideways scroll, touch targets 44px, rows not clipped, values readable (select at least 90px) ${JSON.stringify(g)}`);
   // the preview follows every hairstyle
   const seen = new Set();
   for (let i = 0; i < female.length; i++) {await page.selectOption('#character-hairstyle', female[i]); await page.waitForTimeout(250); seen.add(await preview(page));}
@@ -51,7 +52,7 @@ for (const [w, h] of VIEWS) {
   ok(await page.locator('#headwear-row').isVisible(), `${tag}: Headwear row shows for a mage`);
   const worn = await preview(page); await page.selectOption('#character-headwear', 'bare'); await page.waitForTimeout(250);
   ok(await preview(page) !== worn, `${tag}: a bare head changes the mage preview`);
-  const g2 = await geometry(page); ok(!g2.hscroll && g2.small.length === 0 && g2.clipped === 0, `${tag}: layout holds with the Headwear row ${JSON.stringify(g2)}`);
+  const g2 = await geometry(page); ok(!g2.hscroll && g2.small.length === 0 && g2.clipped === 0 && g2.narrow.length === 0, `${tag}: layout holds with the Headwear row ${JSON.stringify(g2)}`);
   await page.click('.calling-card[data-id=summoner]'); await page.waitForTimeout(200);
   ok(await page.locator('#headwear-row').isHidden(), `${tag}: Headwear row hides for a summoner`);
   if (shotPrefix) {await page.click('.calling-card[data-id=mage]'); await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300); await page.screenshot({path: `${shotPrefix}-${tag}.png`});}

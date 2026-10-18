@@ -1,0 +1,98 @@
+[
+ {
+  "path": "appearance.js",
+  "kind": "added"
+ },
+ {
+  "path": "audio.js",
+  "kind": "modified"
+ },
+ {
+  "path": "audio/orchestra/SOUNDFONT-LICENSE.txt",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/a-bed-for-the-night.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/beneath-the-keepers-hall.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/gate-of-lanterns.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/hearthwick-morning.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/lantern-raised.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/lanterns-on-the-water.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/market-square.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/moors-at-dusk.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/open-for-trade.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/steel-and-starlight.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/the-hollow-warden.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "audio/orchestra/the-river-road.mp3",
+  "kind": "added"
+ },
+ {
+  "path": "battle-ui.js",
+  "kind": "modified"
+ },
+ {
+  "path": "characters.js",
+  "kind": "modified"
+ },
+ {
+  "path": "journey-ui.js",
+  "kind": "modified"
+ },
+ {
+  "path": "journey.js",
+  "kind": "modified"
+ },
+ {
+  "path": "jrpg-theme.css",
+  "kind": "modified"
+ },
+ {
+  "path": "render.js",
+  "kind": "modified"
+ },
+ {
+  "path": "rpg.js",
+  "kind": "modified"
+ },
+ {
+  "path": "soundtrack.js",
+  "kind": "modified"
+ },
+ {
+  "path": "sprites.js",
+  "kind": "modified"
+ }
+]

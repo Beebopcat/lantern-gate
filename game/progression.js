@@ -3,7 +3,7 @@
 export const MAX_LEVEL=30;
 export const TALENTS={
   vigor:{name:'Unbroken heart',detail:'Gain 8 maximum health per rank.',max:12},
-  focus:{name:'Candle keeper',detail:'Gain 4 maximum focus and faster focus recovery per rank.',max:12},
+  focus:{name:'Candle keeper',detail:'Gain 4 maximum mana and faster mana recovery per rank.',max:12},
   mastery:{name:'Practiced hand',detail:'Gain 1 strike damage and 2 spell damage per rank.',max:12}
 };
 const record=o=>o&&typeof o==='object'&&!Array.isArray(o);
@@ -37,7 +37,7 @@ export function awardExperience(s,source,context={}){
     // Growth restores only the new capacity, not all health. It cannot turn a
     // nearly fatal encounter into a free full heal.
     p.maxHp+=10;p.maxMp+=4;p.hp=Math.min(p.maxHp,p.hp+10);p.mp=Math.min(p.maxMp,p.mp+4);
-    messages.push(`Level ${p.level}. Your health and focus grow. Choose a talent in the Skill Tree.`);
+    messages.push(`Level ${p.level}. Your health and mana grow. Choose a talent in the Skill Tree.`);
     if([3,6,10,15,20,25,30].includes(p.level))messages.push('Your calling grows more practiced. Class abilities recover sooner.');
   }
   if(p.level===MAX_LEVEL)p.xp=0;

@@ -12,6 +12,8 @@
 //   spriteSheet(actor[, outfit]) -> cached {key,w,h,cols,rows,data:Uint8ClampedArray RGBA,anchor} sheet of every frame
 //   frameIndex(pose,frame) / frameCol(pose,t) helpers, POSE_FRAMES, SHEET_COLS
 // Everything below the API renders into plain RGBA buffers so the generator also runs in Node (sprite lab).
+import {HAIR_STYLES, DEFAULT_STYLES, EYE_COLORS, EYE_DEFAULTS} from './appearance.js';
+export {HAIR_STYLES};
 export const DIRS = ['down', 'left', 'up', 'right'];
 export const POSES = ['idle', 'walk', 'attack', 'cast', 'hurt', 'down', 'guard'];
 export const POSE_FRAMES = {idle: 2, walk: 4, attack: 3, cast: 2, hurt: 1, down: 1, guard: 1};
@@ -61,9 +63,17 @@ const HAIR = {
   black: fixed('#110e17', '#1d1a28', '#2b283b', '#3d3a53', '#575876', '#7b80a2'),
   silver: fixed('#3c3d50', '#68697e', '#9395a7', '#b9bcc8', '#d9dbe3', '#f4f5f8'),
   auburn: fixed('#311416', '#5a2120', '#853529', '#ae4f39', '#cf734f', '#e89b6b'),
-  gold: fixed('#4a2f18', '#835b25', '#b28937', '#d7b153', '#eed079', '#fbebab')
+  gold: fixed('#4a2f18', '#835b25', '#b28937', '#d7b153', '#eed079', '#fbebab'),
+  rose: fixed('#451a30', '#7a2c54', '#ad4878', '#d46c9a', '#ea92b6', '#f9bfd4'),
+  copper: fixed('#3a1608', '#6e2c10', '#a8481a', '#d4692a', '#ee8c42', '#fdb87c'),
+  sky: fixed('#13203c', '#24407a', '#3b69b0', '#5c92dc', '#88b8f4', '#bedcff'),
+  teal: fixed('#0e3034', '#1a585a', '#2c8884', '#4ab2a6', '#7cd4c2', '#b4f0e0'),
+  violet: fixed('#2a1446', '#4a2a7e', '#7248b4', '#9a6edc', '#bc96f2', '#dcc6ff')
 };
-const EYES = [['#3b2219', '#6e4430'], ['#22402c', '#4a7a4c'], ['#21335a', '#4a6fa8'], ['#46361a', '#8a6a30'], ['#2e3440', '#66707e']].map(e => e.map(hex));
+// order matches EYE_COLORS in appearance.js: brown, green, blue, amber, grey, violet, teal
+const EYES = [['#3b2219', '#6e4430'], ['#22402c', '#4a7a4c'], ['#21335a', '#4a6fa8'], ['#46361a', '#8a6a30'], ['#2e3440', '#66707e'], ['#34205a', '#8a62c8'], ['#154a52', '#3ea4aa']].map(e => e.map(hex));
+// darker skin tones get brighter irises so the eyes still read against the face
+const irises = (skin, i) => ['deep', 'earth'].includes(skin) ? EYES[i].map((c, k) => mix(c, [255, 250, 235], k ? .38 : .22)) : EYES[i];
 const M = {
   steel: fixed('#22253a', '#3d4560', '#646e88', '#939db3', '#c3cbd9', '#eff3f9'),
   brass: fixed('#3c2513', '#6c441f', '#9e692b', '#c89a41', '#e7c569', '#fbeaa5'),
@@ -232,9 +242,11 @@ const CAPS = {
   }
 };
 CAPS.part.back = CAPS.bangs.back;
-const FAMILY = {long: 'bangs', bob: 'bangs', bun: 'bangs', short: 'bangs', tied: 'bangs', ponytail: 'part', braid: 'part', swept: 'part', spiky: 'spiky', shaggy: 'spiky'};
+const FAMILY = {long: 'bangs', bob: 'bangs', bun: 'bangs', short: 'bangs', tied: 'bangs', ponytail: 'part', braid: 'part', swept: 'part', spiky: 'spiky', shaggy: 'spiky', twintails: 'bangs', crown: 'part', waves: 'part', curls: 'bangs', topknot: 'bangs', mane: 'part'};
+// styles whose hair falls past the shoulders at the sides
+const LONGISH = new Set(['long', 'bob', 'waves', 'mane']);
 // how far the side locks fall (template row) in the front view
-const LOCKS = {long: 16, ponytail: 12, braid: 12, bun: 12, short: 10, spiky: 10, swept: 11, tied: 11, bob: 14, shaggy: 13};
+const LOCKS = {long: 16, ponytail: 12, braid: 12, bun: 12, short: 10, spiky: 10, swept: 11, tied: 11, bob: 14, shaggy: 13, twintails: 12, crown: 9, waves: 15, curls: 11, topknot: 8, mane: 15};
 function stamp(B, rows, ox, oy, map, flag = 0, clip = null) {
   for (let j = 0; j < rows.length; j++) for (let i = 0; i < rows[j].length; i++) {
     const ch = rows[j][i], c = map[ch]; if (!c) continue;
@@ -255,6 +267,21 @@ function eye(B, sp, x, y, mode, outer, side = false) {
   dot(B, x, y + 1, side ? e[0] : W); dot(B, x + 1, y + 1, side ? W : e[0]); dot(B, x, y + 2, e[0]); dot(B, x + 1, y + 2, e[1]);
   if (sp.gender === 'female') dot(B, outer, y, lid);
 }
+// Freckles, a scar or a beauty mark. Front view: l and rr are the cheek columns either side of the nose; side view: l is the cheek column.
+function faceMark(B, sp, l, rr, ey, side) {
+  const f = sp.face; if (!f) return;
+  const k = mix(sp.skin.s, [140, 64, 48], .42), sc = mix(sp.skin.h, [236, 170, 170], .5), mk = mix(sp.skin.d, [36, 18, 20], .55);
+  if (f === 'freckles') {
+    const pts = side ? [[l + 2, ey + 2], [l, ey + 3], [l + 2, ey + 4]] : [[l, ey + 2], [l + 1, ey + 4], [l - 1, ey + 4], [rr, ey + 2], [rr - 1, ey + 4], [rr + 1, ey + 4]];
+    for (const [x, y] of pts) dot(B, x, y, k);
+  } else if (f === 'scar') {
+    const pts = side ? [[l + 2, ey], [l + 2, ey + 1], [l + 1, ey + 2], [l + 1, ey + 3]] : [[rr + 1, ey], [rr + 1, ey + 1], [rr, ey + 2], [rr, ey + 3]];
+    for (const [x, y] of pts) dot(B, x, y, sc);
+    if (!side) dot(B, rr + 1, ey + 2, k); else dot(B, l + 2, ey + 2, k);
+  } else if (f === 'mark') {
+    if (side) dot(B, l - 1, ey + 4, mk); else dot(B, rr - 2, ey + 4, mk);
+  }
+}
 function headFront(B, sp, r, back) {
   const b = r.bob + (r.head || 0), cx = 20 + (r.hx || 0), ox = cx - 8, y0 = 10 + b, oy = y0 - 2, st = sp.hairStyle, H = sp.hair, hm = hairMap(H);
   // neck
@@ -268,6 +295,7 @@ function headFront(B, sp, r, back) {
     eye(B, sp, cx - 4, ey, r.eyes, cx - 5); eye(B, sp, cx + 2, ey, r.eyes, cx + 4);
     dot(B, cx - 6, ey + 3, sp.blush); dot(B, cx + 5, ey + 3, sp.blush);
     dot(B, cx, ey + 3, sp.skin.s);
+    faceMark(B, sp, cx - 5, cx + 4, ey, false);
     const mc = sp.mouth;
     if (r.mouth === 'open' || r.mouth === 'shout') {dot(B, cx - 1, ey + 4, mc); dot(B, cx, ey + 4, mc); dot(B, cx - 1, ey + 5, mix(mc, [70, 24, 34], .5)); dot(B, cx, ey + 5, mix(mc, [70, 24, 34], .5));}
     else if (r.mouth === 'set') hline(B, cx - 1, cx, ey + 4, mc);
@@ -284,14 +312,26 @@ function headFront(B, sp, r, back) {
       const tip = j === end;
       for (const [i, c] of [[0, 's'], [1, tip ? 's' : 'b'], [14, tip ? 'd' : 's'], [15, 'd']]) B.put(ox + i, capOy + j, hm[c]);
     }
-    if (st === 'long' || st === 'bob' || st === 'shaggy') {for (let j = 12; j <= end; j++) {B.put(ox + 2, capOy + j, j === end ? H.s : H.b); B.put(ox + 13, capOy + j, H.s);}}
+    if (LONGISH.has(st) || st === 'shaggy') {for (let j = 12; j <= end; j++) {B.put(ox + 2, capOy + j, j === end ? H.s : H.b); B.put(ox + 13, capOy + j, H.s);}}
     if (st === 'shaggy') {B.put(ox + 1, capOy + end + 1, H.s); B.put(ox + 14, capOy + end + 1, H.d);}
+    if (st === 'crown') crownWeave(B, H, ox, capOy + 4, sp.tie);
     // cast shadow under the fringe
     for (let x = ox + 2; x <= ox + 13; x++) {let y = y0; while (y < y0 + 12 && isHair(B, x, y, H)) y++; if (y > y0 && y < y0 + 12 && !isHair(B, x, y, H) && !isEyePx(B, x, y, sp)) B.put(x, y, sp.skin.s);}
   } else {
-    const end = {long: 16, bob: 16, shaggy: 16, ponytail: 15, braid: 15, bun: 15}[st] || 15;
+    const end = {long: 16, bob: 16, shaggy: 16, waves: 16, mane: 16}[st] || 15;
     for (let j = 15; j <= end; j++) for (let i = 1; i <= 14; i++) B.put(ox + i, capOy + j, hm[j === end ? (i % 3 ? 's' : 'd') : (i % 4 === 1 ? 's' : 'b')]);
+    if (st === 'crown') crownWeave(B, H, ox, capOy + 8, sp.tie);
   }
+}
+// A braid worn as a coronet: two rows of woven strands across the head, with a gold pin at one end.
+function crownWeave(B, H, ox, y, pin) {
+  for (let i = 2; i <= 13; i++) {
+    if (isHair(B, ox + i, y - 1, H)) B.put(ox + i, y - 1, H.d);
+    if (isHair(B, ox + i, y, H)) B.put(ox + i, y, i % 2 ? H.h : H.s);
+    if (isHair(B, ox + i, y + 1, H)) B.put(ox + i, y + 1, i % 2 ? H.s : H.h);
+    if (isHair(B, ox + i, y + 2, H)) B.put(ox + i, y + 2, H.d);
+  }
+  if (pin) {B.put(ox + 11, y, pin); B.put(ox + 12, y, pin); B.put(ox + 11, y + 1, pin); B.put(ox + 12, y + 1, pin);}
 }
 const same = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 const isHair = (B, x, y, H) => {if (!B.a(x, y)) return false; const c = B.col(x, y); return ['d', 's', 'b', 'l', 'h', 'o'].some(k => same(c, H[k]));};
@@ -305,8 +345,16 @@ function hairBehind(B, sp, r, view) {
     if (st === 'long') m.poly([[cx - 8, y0 + 4], [cx + 8, y0 + 4], [cx + 9, y0 + 18], [cx + 6, y0 + 20], [cx - 6, y0 + 20], [cx - 9, y0 + 18]]);
     if (st === 'ponytail') {m.cap(cx + 6, y0 + 1, cx + 9, y0 + 7, 2.2); m.cap(cx + 9, y0 + 7, cx + 9, y0 + 14, 1.7); m.cap(cx + 9, y0 + 14, cx + 8, y0 + 17, 1.1);}
     if (st === 'bun') m.ell(cx, y0 - 1, 3.6, 3);
-    if (!m.empty()) paint(B, m, st === 'bun' ? H : shiftRamp(H, -1), {shade: st === 'bun' ? 'ball' : 'cyl'});
-    if (st === 'long') for (const x of [cx - 7, cx + 6]) vline(B, x, y0 + 14, y0 + 19, H.d);
+    if (st === 'bob') m.poly([[cx - 8, y0 + 4], [cx + 8, y0 + 4], [cx + 9.5, y0 + 10], [cx + 9, y0 + 14], [cx + 6, y0 + 15.5], [cx - 6, y0 + 15.5], [cx - 9, y0 + 14], [cx - 9.5, y0 + 10]]);
+    if (st === 'twintails') for (const d of [-1, 1]) {m.cap(cx + d * 7, y0 + 2, cx + d * 9, y0 + 8, 2.2); m.cap(cx + d * 9, y0 + 8, cx + d * 9.5, y0 + 15, 1.9); m.cap(cx + d * 9.5, y0 + 15, cx + d * 8.5, y0 + 19, 1.2);}
+    if (st === 'waves') m.poly([[cx - 8, y0 + 4], [cx + 8, y0 + 4], [cx + 10, y0 + 9], [cx + 9, y0 + 13], [cx + 11, y0 + 17], [cx + 8, y0 + 19], [cx + 6, y0 + 17], [cx + 4, y0 + 19], [cx + 2, y0 + 17], [cx, y0 + 19], [cx - 2, y0 + 17], [cx - 4, y0 + 19], [cx - 6, y0 + 17], [cx - 8, y0 + 19], [cx - 11, y0 + 17], [cx - 9, y0 + 13], [cx - 10, y0 + 9]]);
+    if (st === 'mane') m.poly([[cx - 8, y0 + 4], [cx + 8, y0 + 4], [cx + 10, y0 + 10], [cx + 10, y0 + 15], [cx + 8, y0 + 18], [cx + 6, y0 + 15], [cx + 4, y0 + 18], [cx + 2, y0 + 15], [cx, y0 + 18], [cx - 2, y0 + 15], [cx - 4, y0 + 18], [cx - 6, y0 + 15], [cx - 8, y0 + 18], [cx - 10, y0 + 15], [cx - 10, y0 + 10]]);
+    if (st === 'topknot') {m.ell(cx, y0 - 2.6, 3, 2.6); m.cap(cx + 2, y0 - 3.6, cx + 4.5, y0 - 2, 1);}
+    if (st === 'curls') for (const [dx, dy, r] of [[-7.5, 1.5, 2.6], [-5, -1.5, 2.8], [-1.5, -2.6, 2.9], [2.5, -2.4, 2.9], [5.5, -.8, 2.8], [7.8, 2, 2.6], [-8.4, 6, 2.2], [8.4, 6, 2.2]]) m.ell(cx + dx, y0 + dy, r, r);
+    if (!m.empty()) paint(B, m, st === 'bun' || st === 'curls' || st === 'topknot' ? H : shiftRamp(H, -1), {shade: st === 'bun' || st === 'curls' || st === 'topknot' ? 'ball' : 'cyl'});
+    if (st === 'long' || st === 'waves') for (const x of [cx - 7, cx + 6]) vline(B, x, y0 + 14, y0 + 19, H.d);
+    if (st === 'twintails') for (const d of [-1, 1]) {dot(B, cx + d * 7, y0 + 3, sp.tie); dot(B, cx + d * 8, y0 + 3, sp.tie);}
+    if (st === 'topknot') {dot(B, cx - 1, y0 - 0, sp.tie); dot(B, cx, y0 - 0, sp.tie);}
   } else if (view === 'left') {
     if (st === 'long') m.poly([[cx + 1, y0 + 3], [cx + 8, y0 + 5], [cx + 9, y0 + 19], [cx + 6, y0 + 21], [cx + 2, y0 + 19], [cx + 1, y0 + 14]]);
     if (st === 'ponytail') {m.cap(cx + 6, y0 + 1, cx + 10, y0 + 6, 2.3); m.cap(cx + 10, y0 + 6, cx + 10, y0 + 13, 1.8); m.cap(cx + 10, y0 + 13, cx + 9, y0 + 17, 1.1);}
@@ -314,21 +362,37 @@ function hairBehind(B, sp, r, view) {
     if (st === 'tied') m.cap(cx + 6.5, y0 + 10, cx + 7.5, y0 + 15, 1.4);
     if (st === 'bun') m.ell(cx + 5, y0, 3.2, 3);
     if (st === 'bob' || st === 'shaggy') m.poly([[cx + 1, y0 + 4], [cx + 8, y0 + 4], [cx + 8, y0 + 13], [cx + 2, y0 + 13]]);
-    if (!m.empty()) paint(B, m, H, {shade: st === 'bun' ? 'ball' : 'cyl'});
+    if (st === 'twintails') {m.cap(cx + 6, y0 + 2, cx + 9, y0 + 8, 2.2); m.cap(cx + 9, y0 + 8, cx + 10, y0 + 15, 1.9); m.cap(cx + 10, y0 + 15, cx + 9, y0 + 19, 1.2);}
+    if (st === 'waves') m.poly([[cx + 1, y0 + 3], [cx + 8, y0 + 5], [cx + 9, y0 + 16], [cx + 8, y0 + 18], [cx + 6, y0 + 16], [cx + 4, y0 + 18], [cx + 2, y0 + 16], [cx + 1, y0 + 13]]);
+    if (st === 'mane') m.poly([[cx + 1, y0 + 3], [cx + 8, y0 + 5], [cx + 9, y0 + 14], [cx + 8, y0 + 17], [cx + 6, y0 + 15], [cx + 4, y0 + 17], [cx + 2, y0 + 15], [cx + 1, y0 + 12]]);
+    if (st === 'topknot') {m.ell(cx + 2, y0 - 2.4, 3, 2.6); m.cap(cx + 4.5, y0 - 3.4, cx + 7, y0 - 1.5, 1);}
+    if (st === 'curls') for (const [dx, dy, r] of [[-1, -2.4, 2.9], [2.5, -1.6, 2.8], [5.5, .5, 2.8], [8, 3.5, 2.6], [8.6, 7.5, 2.3], [7.4, 11, 2]]) m.ell(cx + dx, y0 + dy, r, r);
+    if (!m.empty()) paint(B, m, H, {shade: st === 'bun' || st === 'curls' || st === 'topknot' ? 'ball' : 'cyl'});
+    if (st === 'twintails') {dot(B, cx + 7, y0 + 3, sp.tie); dot(B, cx + 8, y0 + 3, sp.tie);}
+    if (st === 'topknot') {dot(B, cx + 2, y0 - 1, sp.tie); dot(B, cx + 3, y0 - 1, sp.tie);}
     if (st === 'braid') {for (let i = 0; i < 4; i++) dot(B, Math.round(cx + 6.8 - i * .2), Math.round(y0 + 12.5 + i * 2.1), H.s); dot(B, Math.round(cx + 6.6), y0 + 21, sp.tie); dot(B, Math.round(cx + 6.6), y0 + 22, H.b);}
     if (st === 'braid' || st === 'ponytail' || st === 'tied') {const ty = st === 'braid' ? y0 + 12 : st === 'tied' ? y0 + 10 : y0 + 5; dot(B, cx + (st === 'ponytail' ? 9 : 7), ty, sp.tie); dot(B, cx + (st === 'ponytail' ? 10 : 6), ty, sp.tie);}
   }
 }
 function hairOverBack(B, sp, r) {
   if (sp.hood || sp.helm === 'full') return;
-  const st = sp.hairStyle, H = sp.hair, b = r.bob + (r.head || 0), y0 = 10 + b, cx = 20 + (r.hx || 0), m = new Mask(HW, HH);
+  const st = sp.hairStyle, H = sp.hair;
+  if (sp.hat && (st === 'curls' || st === 'topknot' || st === 'bun')) return;   // the hat covers the crown
+  const hat = !!sp.hat, tailTop = hat ? 8 : 3,  b = r.bob + (r.head || 0), y0 = 10 + b, cx = 20 + (r.hx || 0), m = new Mask(HW, HH);
   if (st === 'long') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 19], [cx + 5, y0 + 21], [cx, y0 + 20], [cx - 5, y0 + 21], [cx - 8, y0 + 19]]);
   if (st === 'ponytail') {m.cap(cx, y0 + 3, cx, y0 + 9, 2.2); m.cap(cx, y0 + 9, cx + 1, y0 + 17, 1.8); m.cap(cx + 1, y0 + 17, cx + 1, y0 + 19, 1);}
   if (st === 'braid') for (let i = 0; i < 5; i++) m.ell(cx, y0 + 15 + i * 2, 1.9, 1.4);
   if (st === 'tied') m.cap(cx, y0 + 13, cx, y0 + 17, 1.3);
   if (st === 'bun') m.ell(cx, y0, 3.6, 3);
+  if (st === 'twintails') for (const d of [-1, 1]) {m.cap(cx + d * 6, y0 + tailTop, cx + d * 8.5, y0 + 9, 1.9); m.cap(cx + d * 8.5, y0 + 9, cx + d * 8.5, y0 + 16, 1.7); m.cap(cx + d * 8.5, y0 + 16, cx + d * 7.5, y0 + 19, 1.1);}
+  if (st === 'waves') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 17], [cx + 6, y0 + 19], [cx + 4, y0 + 17], [cx + 2, y0 + 19], [cx, y0 + 17], [cx - 2, y0 + 19], [cx - 4, y0 + 17], [cx - 6, y0 + 19], [cx - 8, y0 + 17]]);
+  if (st === 'mane') m.poly([[cx - 7, y0 + 12], [cx + 7, y0 + 12], [cx + 8, y0 + 16], [cx + 6, y0 + 18], [cx + 4, y0 + 16], [cx + 2, y0 + 18], [cx, y0 + 16], [cx - 2, y0 + 18], [cx - 4, y0 + 16], [cx - 6, y0 + 18], [cx - 8, y0 + 16]]);
+  if (st === 'topknot') {m.ell(cx, y0 - 2.6, 3, 2.6); m.cap(cx + 2, y0 - 3.6, cx + 4.5, y0 - 2, 1);}
+  if (st === 'curls') for (const [dx, dy, r] of [[-7.5, 1.5, 2.6], [-5, -1.5, 2.8], [-1.5, -2.6, 2.9], [2.5, -2.4, 2.9], [5.5, -.8, 2.8], [7.8, 2, 2.6], [-8.4, 6, 2.2], [8.4, 6, 2.2]]) m.ell(cx + dx, y0 + dy, r, r);
   if (m.empty()) return;
-  paint(B, m, H, {shade: st === 'bun' ? 'ball' : 'cyl', contour: 'd'});
+  paint(B, m, H, {shade: st === 'bun' || st === 'curls' || st === 'topknot' ? 'ball' : 'cyl', contour: 'd'});
+  if (st === 'twintails' && !hat) for (const d of [-1, 1]) dot(B, cx + d * 6, y0 + 3, sp.tie);
+  if (st === 'topknot') {dot(B, cx - 1, y0 - 1, sp.tie); dot(B, cx, y0 - 1, sp.tie);}
   if (st === 'long') {for (const x of [cx - 4, cx - 1, cx + 3]) for (let y = y0 + 14; y < y0 + 20; y += 1) if (m.on(x, y)) B.put(x, y, H.s);}
   if (st === 'braid') for (let i = 0; i < 5; i++) {dot(B, cx - 1, y0 + 15 + i * 2, H.s); dot(B, cx + 1, y0 + 16 + i * 2, H.s);}
   const ty = st === 'braid' ? y0 + 14 : st === 'tied' ? y0 + 13 : st === 'ponytail' ? y0 + 8 : 0;
@@ -344,6 +408,7 @@ function headSide(B, sp, r) {
   const ey = y0 + 7;
   eye(B, sp, ox + 2, ey, r.eyes, ox + 1, true);
   dot(B, ox + 4, ey + 3, sp.blush);
+  faceMark(B, sp, ox + 3, 0, ey, true);
   const mc = sp.mouth;
   if (r.mouth === 'open' || r.mouth === 'shout') {dot(B, ox, ey + 4, mc); dot(B, ox + 1, ey + 4, mc); dot(B, ox + 1, ey + 5, mix(mc, [70, 24, 34], .5));} else dot(B, ox + 1, ey + 4, mc);
   // ear (visible below short hair)
@@ -351,7 +416,7 @@ function headSide(B, sp, r) {
   if (sp.hood || sp.helm === 'full' || st === 'none') return;
   const fam = FAMILY[st] || 'bangs', cap = CAPS[fam].side, capOy = oy;
   stamp(B, cap, ox, capOy, hm);
-  if (st === 'long' || st === 'bob' || st === 'shaggy' || st === 'braid' || st === 'bun' || st === 'ponytail') for (let j = 11; j <= (st === 'long' || st === 'bob' ? 15 : 13); j++) for (let i = 9; i <= 13; i++) if (!(st !== 'long' && st !== 'bob' && j > 13)) B.put(ox + i, capOy + j, hm[i === 13 || j === 16 ? 'd' : i === 9 ? 's' : 'b']);
+  if (LONGISH.has(st) || ['shaggy', 'braid', 'bun', 'ponytail', 'twintails', 'crown', 'topknot', 'curls'].includes(st)) for (let j = 11; j <= (LONGISH.has(st) ? 15 : 13); j++) for (let i = 9; i <= 13; i++) if (!(!LONGISH.has(st) && j > 13)) B.put(ox + i, capOy + j, hm[i === 13 || j === 16 ? 'd' : i === 9 ? 's' : 'b']);
   for (let x = ox; x <= ox + 6; x++) {let y = y0; while (y < y0 + 12 && isHair(B, x, y, H)) y++; if (y > y0 && y < y0 + 12 && !isHair(B, x, y, H) && !isEyePx(B, x, y, sp) && B.a(x, y)) B.put(x, y, sp.skin.s);}
 }
 // Bare skull: dark sockets with a glowing ember, nose hole and a row of teeth.
@@ -378,7 +443,6 @@ function fullHelm(B, sp, r, cx, y0, view) {
 // ================================================================ humanoids
 // Frame 40x48. Feet rest on row 45; the figure is about 36px tall (3 heads) and 16-22px wide.
 const HW = 40, HH = 48, FOOT = 45;
-const HAIR_STYLES = {female: ['long', 'ponytail', 'braid', 'bun'], male: ['short', 'spiky', 'swept', 'tied'], nonbinary: ['bob', 'shaggy', 'swept', 'tied']};
 const isAttack = it => it === 'wind' || it === 'strike' || it === 'recover';
 
 // Pose rig in FRONT-view coordinates. Arms are [shoulder, elbow?, hand]; arms[0] is screen-left.
@@ -832,7 +896,7 @@ function humanSide(B, sp, pose, f) {
 function humanDown(B, sp) {
   // long skirts and tall hats rotate badly: the robe is drawn short and a wizard hat lies on the ground behind
   const longSkirt = ['robe', 'gown', 'longcoat'].includes(sp.garment), wiz = sp.hat === 'wizard';
-  const T = new Buf(HW, HH); humanSide(T, {...sp, downPose: true, garment: longSkirt ? 'coat' : sp.garment, hat: wiz ? null : sp.hat, gear: {...sp.gear, quiver: false, bow: false, charm: false, staff: false, spear: false, lantern: false, tool: null, book: false}}, 'down', 0);
+  const T = new Buf(HW, HH); humanSide(T, {...sp, hairStyle: {topknot: 'tied', curls: 'short'}[sp.hairStyle] || sp.hairStyle, downPose: true, garment: longSkirt ? 'coat' : sp.garment, hat: wiz ? null : sp.hat, gear: {...sp.gear, quiver: false, bow: false, charm: false, staff: false, spear: false, lantern: false, tool: null, book: false}}, 'down', 0);
   let minX = HW, maxX = 0, minY = HH, maxY = 0;
   for (let y = 0; y < HH; y++) for (let x = 0; x < HW; x++) if (T.a(x, y)) {minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);}
   // rotate clockwise: face up, head to the right
@@ -958,7 +1022,8 @@ function npcSpec(a) {
   const skin = SKIN[a.skin] ? a.skin : ['warm', 'earth', 'pale', 'deep', 'olive'][seed % 5];
   const hair = HAIR[a.hair] ? a.hair : ['black', 'brown', 'gold', 'silver', 'auburn'][Math.floor(seed / 7) % 5];
   const styles = HAIR_STYLES[gender], sp = baseHuman(gender, skin, hair, seed);
-  sp.hairStyle = styles[Math.floor(seed / 13) % styles.length]; sp.role = role; build(sp, 'normal');
+  // residents keep the four original styles; the newer ones are for the creation screen
+  sp.hairStyle = styles[Math.floor(seed / 13) % DEFAULT_STYLES]; sp.role = role; build(sp, 'normal');
   const w = a.wardrobe, base = w?.coat || ROLE_COLOR[prof] || ROLE_COLOR[role] || '#5a6a72';
   sp.coat = rampOf(base); sp.trim = rampOf(w?.trim || '#d6c49a'); sp.pants = rampOf(w?.pants || '#4a4650');
   sp.garment = STYLE_GARMENT[w?.style] || (gender === 'female' ? 'gown' : 'tunic');
@@ -1372,8 +1437,7 @@ function build(sp, kind) {
 function baseHuman(gender, skin, hair, seed) {
   return {
     type: 'human', gender, skinKey: skin, hairKey: hair, seed, skin: SKIN[skin], blush: hex(BLUSH[skin]), hair: HAIR[hair],
-    // darker skin tones get brighter irises so the eyes still read against the face
-    eyes: ['deep', 'earth'].includes(skin) ? EYES[seed % EYES.length].map((c, i) => mix(c, [255, 250, 235], i ? .38 : .22)) : EYES[seed % EYES.length], lash: mix(HAIR[hair].o, [30, 18, 26], .6), mouth: mix(SKIN[skin].d, [150, 60, 66], .35),
+    eyes: irises(skin, seed % EYE_DEFAULTS), lash: mix(HAIR[hair].o, [30, 18, 26], .6), mouth: mix(SKIN[skin].d, [150, 60, 66], .35),
     tie: hex('#c8a24a'), fletch: hex('#c4553f'), inner: rampOf('#e2d8c4'), boot: M.boot, belt: M.leather, pants: rampOf('#4a4552'), trim: rampOf('#d8b46a'), gear: {}
   };
 }
@@ -1382,15 +1446,16 @@ function heroSpec(a, outfit) {
   const gender = ['female', 'male', 'nonbinary'].includes(a.gender) ? a.gender : 'female';
   const skin = SKIN[a.skin] ? a.skin : 'warm', hair = HAIR[a.hair] ? a.hair : 'brown';
   const color = outfitHex(outfit) || outfitHex(a.outfit) || OUTFIT_COLORS.traveler, seed = seedOf(a.name || 'Wayfarer');
-  const styles = HAIR_STYLES[gender], hairStyle = styles[seed % styles.length];
-  const sp = baseHuman(gender, skin, hair, seed), coat = rampOf(color);
-  Object.assign(sp, {classId, hairStyle, coat, gear: {...GEAR[classId]}});
+  const styles = HAIR_STYLES[gender], hairStyle = styles.includes(a.hairStyle) ? a.hairStyle : styles[seed % DEFAULT_STYLES];
+  const sp = baseHuman(gender, skin, hair, seed), coat = rampOf(color), eyeIx = EYE_COLORS.includes(a.eyes) ? EYE_COLORS.indexOf(a.eyes) : seed % EYE_DEFAULTS;
+  Object.assign(sp, {classId, hairStyle, coat, gear: {...GEAR[classId]}, eyes: irises(skin, eyeIx), face: ['freckles', 'scar', 'mark'].includes(a.face) ? a.face : null});
   build(sp, gender === 'male' && classId === 'warrior' ? 'broad' : 'normal');
   if (classId === 'warrior') {sp.garment = 'coat'; sp.trim = rampOf('#c9a45c'); sp.pants = rampOf('#4b4650'); sp.cuff = M.leather;}
   if (classId === 'mage') {sp.garment = 'robe'; sp.hat = 'wizard'; sp.hatColor = coat; sp.trim = rampOf('#e2c16e'); sp.inner = rampOf('#efe2c4'); sp.orb = M.glowTeal; sp.cuff = rampOf('#e2c16e');}
   if (classId === 'ranger') {sp.garment = 'tunic'; sp.hood = true; sp.mantle = true; sp.cloak = coat; sp.coat = rampOf(mixHex(color, '#7a6444', .55)); sp.trim = rampOf('#b89a62'); sp.pants = rampOf('#5a4a3a'); sp.sleeve = rampOf(mixHex(color, '#7a6444', .55)); sp.glove = rampOf('#9a7a52');}
   if (classId === 'summoner') {sp.garment = 'longcoat'; sp.collar = true; sp.trim = rampOf('#d6b56c'); sp.inner = rampOf('#e6dcc6'); sp.orb = M.glowViolet; sp.cuff = rampOf('#d6b56c');}
-  sp.key = ['hero', classId, gender, skin, hair, color, hairStyle, seed % EYES.length].join(':');
+  if (a.headwear === 'bare') {sp.hat = null; sp.hood = false;}
+  sp.key = ['hero', classId, gender, skin, hair, color, hairStyle, eyeIx, sp.face || '-', sp.hat || sp.hood ? 'w' : 'b'].join(':');
   return sp;
 }
 

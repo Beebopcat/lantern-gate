@@ -2,18 +2,18 @@ import {worldClock,worldMinute,worldWeather} from './world-conditions.js';
 import {speechKey,normalizeSpeech,spokenText,castFor} from './voice-cast.js';
 import {townAt,buildingAt,dist,BUILDINGS} from './world.js';
 import {RecordedNarratorB} from './narrator-b.js';
-import {TRACKS,HUNT,trackById,tracksFor} from './soundtrack.js';
+import {TRACKS,HUNT,STINGERS,trackById,tracksFor} from './soundtrack.js';
 export class Music{
- constructor(){this.on=false;this.volume=.3;this.ducked=false;this.duckers=new Set();this.mode='town';this.track=null;this.current=null;this.fading=null;this.lastSwitch=0;this.trackStart=0;this.timer=null;this.pending=null;this.activationVersion=0;this.failedMode=null;this.retryAt=0;this.disposed=false;this.forced=null;this.title=false;this.fight=false;}
+ constructor(){this.on=false;this.volume=.3;this.ducked=false;this.duckers=new Set();this.mode='town';this.track=null;this.current=null;this.fading=null;this.lastSwitch=0;this.trackStart=0;this.timer=null;this.pending=null;this.activationVersion=0;this.failedMode=null;this.retryAt=0;this.disposed=false;this.forced=null;this.title=false;this.fight=false;this.boss=false;this.fanfare=null;}
  get nowPlaying(){return this.track?.name||'';}
  score(track){const audio=new Audio('audio/'+track.file);audio.dataset.score=track.id;audio.hidden=true;document.body.append(audio);audio.loop=true;audio.preload='none';audio.volume=0;return audio;}
  // Pick a track for a mode: the listener's chosen track wins, otherwise a different one from the mode's list each time.
- choose(mode,avoid=this.track?.id){if(mode==='hunt')return HUNT;const forced=this.forced&&trackById(this.forced);if(forced&&mode!=='fight'&&mode!=='title')return forced;if(forced&&forced.mode===mode)return forced;const list=tracksFor(mode),others=list.filter(t=>t.id!==avoid),from=others.length?others:list;return from[Math.floor(Math.random()*from.length)]||tracksFor('town')[0];}
+ choose(mode,avoid=this.track?.id){if(mode==='hunt')return HUNT;const forced=this.forced&&trackById(this.forced);if(forced&&!['fight','boss','title'].includes(mode))return forced;if(forced&&forced.mode===mode)return forced;const list=tracksFor(mode),others=list.filter(t=>t.id!==avoid),from=others.length?others:list,fresh=from.filter(t=>t.hifi),pool=fresh.length&&Math.random()<.8?fresh:from;return pool[Math.floor(Math.random()*pool.length)]||tracksFor('town')[0];}
  cancelSwitch(){const request=this.pending;this.pending=null;if(request){request.audio.pause();request.audio.remove();}}
  async enable(on){
   if(this.disposed)return false;
   const version=++this.activationVersion;this.on=on;clearInterval(this.timer);this.timer=null;this.cancelSwitch();
-  if(!on){this.current?.pause();this.fading?.pause();return true;}
+  if(!on){this.current?.pause();this.fading?.pause();this.endStinger();return true;}
   if(!this.track){if(this.title)this.mode='title';this.track=this.choose(this.mode);}this.current??=this.score(this.track);this.trackStart=performance.now();const audio=this.current;
   try{await audio.play();}catch(error){if(version!==this.activationVersion||!this.on||this.disposed)return false;this.on=false;this.activationVersion++;this.cancelSwitch();this.current?.pause();this.fading?.pause();throw error;}
   if(version!==this.activationVersion||!this.on||this.disposed){if(!this.on||this.disposed)audio.pause();return false;}
@@ -23,7 +23,7 @@ export class Music{
  async switch(mode,track=this.choose(mode),urgent=false){
   if(!this.on||this.disposed||this.timer===null||!track)return false;
   if(this.pending&&this.pending.track.id!==track.id)this.cancelSwitch();
-  const now=performance.now(),quick=urgent||['hunt','fight','title'].includes(mode);if(track.id===this.track?.id||this.pending?.track.id===track.id||track.id===this.failedMode&&now<this.retryAt||!quick&&now-this.lastSwitch<6000)return false;
+  const now=performance.now(),quick=urgent||['hunt','fight','boss','title'].includes(mode);if(track.id===this.track?.id||this.pending?.track.id===track.id||track.id===this.failedMode&&now<this.retryAt||!quick&&now-this.lastSwitch<6000)return false;
   const request={mode,track,audio:this.score(track),version:this.activationVersion};this.pending=request;this.lastSwitch=now;
   // Keep the working score audible until the replacement really starts. A
   // failed or superseded load must not fade it away or pin the requested track.
@@ -36,19 +36,39 @@ export class Music{
   this.fading=this.current;this.current=request.audio;this.mode=mode;this.track=track;this.trackStart=performance.now();this.pending=null;this.failedMode=null;this.retryAt=0;return true;
  }
  // Move to a different track in the current mode (the Settings "Next track" button).
- skip(){this.forced=null;return this.switch(this.mode,this.choose(this.mode),true);}
- update(s){this.volume=s.settings.volume;if(this.current&&this.current.volume>this.volume*.6)this.current.volume=this.volume*.6;const h=worldMinute(s)/60;this.forced=s.settings.musicTrack&&s.settings.musicTrack!=='auto'&&trackById(s.settings.musicTrack)?s.settings.musicTrack:null;
+ skip(){
+  this.forced=null;let next=this.choose(this.mode);
+  // shop, inn and boss each have one track: step into the town (or battle) list instead of doing nothing
+  if(next.id===this.track?.id){const pool=tracksFor({shop:'town',inn:'town',boss:'fight'}[this.mode]||this.mode).filter(t=>t.id!==this.track?.id);if(pool.length)next=pool[Math.floor(Math.random()*pool.length)];}
+  return this.switch(this.mode,next,true);
+ }
+ // A short fanfare over the score (for example after a victory). Silent unless the player has turned music on.
+ async stinger(name){
+  const st=STINGERS[name];if(!st||!this.on||this.disposed||this.volume<=0)return false;
+  this.endStinger();
+  const a=new Audio('audio/'+st.file);a.volume=Math.min(1,this.volume*.9);this.fanfare=a;this.duck(true,'stinger');
+  // the score comes back when the fanfare ends, errors, is paused by the browser, or is cut short by music off / page hide / dispose
+  const done=()=>{if(this.fanfare===a){this.fanfare=null;this.duck(false,'stinger');}};
+  for(const ev of ['ended','error','pause'])a.addEventListener(ev,done,{once:true});
+  try{await a.play();}catch{done();return false;}
+  if(this.fanfare!==a||!this.on||this.disposed){a.pause();return false;}
+  return true;
+ }
+ // Silence a fanfare that is still playing and give the score its volume back.
+ endStinger(){const a=this.fanfare;if(!a)return;this.fanfare=null;this.duck(false,'stinger');a.pause();}
+ update(s){this.volume=s.settings.volume;if(this.fanfare){if(this.volume<=0)this.endStinger();else this.fanfare.volume=Math.min(1,this.volume*.9);}if(this.current&&this.current.volume>this.volume*.6)this.current.volume=this.volume*.6;const h=worldMinute(s)/60;this.forced=s.settings.musicTrack&&s.settings.musicTrack!=='auto'&&trackById(s.settings.musicTrack)?s.settings.musicTrack:null;
   const hunt=['warning','tracking'].includes(s.horror?.horseman?.phase)||s.raidAtmosphere?.active||s.raid||['warning','tracking','searching'].includes(s.journey?.hunt.phase)||s.enemies.some(e=>e.hunter&&e.map===s.player.map&&!e.deadUntil&&['tracking','lunge'].includes(e.huntState)),
-   mode=this.title?'title':this.fight?'fight':hunt?'hunt':s.player.map!=='overworld'?'dungeon':h<6||h>=20?'night':townAt(s.player.x,s.player.y,38)?'town':'wild';
+   room=s.player.map==='overworld'?buildingAt(s.player.x,s.player.y):null,indoor=room?(room.kind==='inn'?'inn':['shop','forge','bakery','clinic'].includes(room.kind)?'shop':null):null,
+   mode=this.title?'title':this.boss?'boss':this.fight?'fight':hunt?'hunt':s.player.map!=='overworld'?'dungeon':indoor?indoor:h<6||h>=20?'night':townAt(s.player.x,s.player.y,38)?'town':'wild';
   if(this.pending?.mode===mode)return;
   const want=this.choose(mode,this.track?.id);
-  if(this.forced&&mode!=='hunt'&&mode!=='fight'&&mode!=='title'){this.switch(want.mode,want);return;}
+  if(this.forced&&!['hunt','fight','boss','title'].includes(mode)){this.switch(want.mode,want);return;}
   // A track picked from the list that belongs to the screen already showing (title or battle) plays right away.
-  if(this.forced&&(mode==='fight'||mode==='title')&&want.id===this.forced&&want.id!==this.track?.id){this.switch(mode,want);return;}
+  if(this.forced&&['fight','boss','title'].includes(mode)&&want.id===this.forced&&want.id!==this.track?.id){this.switch(mode,want);return;}
   // Rotate to another track of the same mode once the current one has played all the way through.
   if(mode===this.mode&&this.track&&!this.forced&&mode!=='hunt'&&performance.now()-this.trackStart>this.track.seconds*1000&&tracksFor(mode).length>1){this.switch(mode,want);return;}
   if(mode!==this.mode)this.switch(mode,want);}
- dispose(){this.disposed=true;this.on=false;this.activationVersion++;clearInterval(this.timer);this.timer=null;this.cancelSwitch();this.current?.pause();this.fading?.pause();}
+ dispose(){this.disposed=true;this.on=false;this.activationVersion++;clearInterval(this.timer);this.timer=null;this.cancelSwitch();this.current?.pause();this.fading?.pause();this.endStinger();}
 }
 export class Narrator{
  constructor(music=null){this.enabled=true;this.volume=.85;this.token=0;this.recordings={};this.hasKokoro=false;this.music=music;this.approvedB=new RecordedNarratorB();this.bRequest=null;this.objectURL=null;this.ready=fetch('audio/kokoro/manifest.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(m=>{if(m?.engine==='kokoro-onnx'){this.recordings=m.recordings||{};this.hasKokoro=Object.keys(this.recordings).length>0;}}).catch(()=>{});this.audio=new Audio();this.audio.hidden=true;this.audio.dataset.narration='ready';document.body.append(this.audio);this.audio.onended=this.audio.onerror=()=>this.music?.duck(false,'dialogue');}

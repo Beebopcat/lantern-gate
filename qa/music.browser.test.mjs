@@ -9,7 +9,7 @@ ok((await scores()).length===0,'silent before music is enabled '+await scores())
 await enterViaLoad(page);
 await page.click('#hud-menu');await page.click('#settings');
 const opts=await page.evaluate(()=>[...document.querySelectorAll('#track-setting option')].map(o=>o.value));
-ok(opts.length===19,'track picker lists auto + 18 tracks ('+opts.length+')');
+ok(opts.length===30,'track picker lists auto + 18 classic + 11 orchestral tracks ('+opts.length+')');
 ok(await page.textContent('#now-playing')==='Turn music on to hear it.','now playing hint when off');
 await page.click('#music-toggle');await page.waitForTimeout(1500);
 let s=await scores();ok(s.length>=1&&s.some(x=>x.endsWith('playing')),'music starts when turned on: '+s);

@@ -31,7 +31,7 @@ const navigator=createNavigator({getState:()=>state,interact:doInteract,notify:m
 const directory=createDirectory({getState:()=>state,panel});
 const questUI=createQuestUI({getState:()=>state,panel,esc,message,closePanel,approach,setWaypoint,openMap:()=>showTab('map'),save,renderer,hud:()=>updateHUD()});
 const journeyUI=createJourneyUI({getState:()=>state,setState:restoreState,panel,closePanel,save,message,renderer,narrator,canAct:()=>!arriving&&!paused&&!$('panel').open&&!hudUI.open,begin:enterWorld,commitNewGame,cancelNewGame});
-const battleUI=createBattleUI({getState:()=>state,renderer,E,dist,save,message,hud:()=>updateHUD(),stopInput:()=>stopWalk()});
+const battleUI=createBattleUI({getState:()=>state,renderer,E,dist,save,message,hud:()=>updateHUD(),stopInput:()=>stopWalk(),jingle:k=>music.stinger(k)});
 let arriving=true;document.querySelectorAll('.masthead,.viewport,.action-bar,main>footer').forEach(el=>el.inert=true);decorateControls();
 narrator.enabled=false;
 function save(){try{const clean={...state,effects:[]};localStorage.setItem(KEY,JSON.stringify(clean));storageOK=true;$('saved').textContent='Saved in this browser';}catch{storageOK=false;$('saved').textContent='Storage unavailable · export a save';}}
@@ -132,7 +132,21 @@ function handlePageHide(event){
  if(!event.persisted){disposed=true;music.dispose();soundscape.dispose();renderer.dispose();}
 }
 function handlePageShow(event){if(event.persisted&&!disposed){pageSuspended=false;resumeRuntime();}}
-function loop(time){frame=null;if(!livePage())return;queueFrame();const dt=Math.min(.2,(time-(last||time))/1000);last=time;if(!arriving&&!paused&&!$('panel').open&&!hudUI.open&&!document.hidden&&!battleUI.active){accum+=dt;while(accum>=1/30){accum-=1/30;const dx=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),dy=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0);if(dx||dy){const direction=renderer.movement(dx,dy);E.move(state,direction.x,direction.y,1/30);}else E.walkPath(state,1/30);E.tick(state,1/30);navigator.update(1/30);if(!battleUI.active){const foes=BT.encounter(state,dist);if(foes.length){battleUI.start(foes);break;}}}}else E.respawns(state,Date.now());renderer.draw(state,time,!arriving&&!paused&&!$('panel').open&&!hudUI.open&&!document.hidden);if(state.notice!==seenNotice){seenNotice=state.notice;message(seenNotice);}if(time>messageUntil)$('toast').textContent='';uiTimer+=dt;saveTimer+=dt;if(uiTimer>.4){updateHUD();music.title=arriving&&!state.journey?.created;music.fight=battleUI.active;music.update(state);soundscape.update(state,renderer);if(effectsOn)void raiderVoices.update(state);uiTimer=0;}journeyUI.autoSave(dt);if(saveTimer>5){saveTimer=0;save();}}
+// Eased walking: the hero accelerates, glides to a stop and turns through the curve instead of snapping to the new heading.
+// (The engine still moves at one constant speed per step; the step length is scaled by walk.f, so saves and rules are untouched.)
+const walk={x:0,y:0,f:0};
+function stepMove(dx,dy,step){
+  if(dx||dy){
+    const d=renderer.movement(dx,dy),len=Math.hypot(d.x,d.y)||1,tx=d.x/len,ty=d.y/len;
+    if(walk.f<.05){walk.x=tx;walk.y=ty;}
+    else if(walk.x*tx+walk.y*ty<-.3){walk.f*=Math.exp(-30*step);if(walk.f<.3){walk.x=tx;walk.y=ty;}}   // reversing: brake first
+    else{const k=1-Math.exp(-16*step),hx=walk.x+(tx-walk.x)*k,hy=walk.y+(ty-walk.y)*k,hl=Math.hypot(hx,hy)||1;walk.x=hx/hl;walk.y=hy/hl;}
+    walk.f+=(1-walk.f)*(1-Math.exp(-14*step));
+    E.move(state,walk.x,walk.y,step*walk.f);
+  }else if(walk.f>.04){walk.f*=Math.exp(-14*step);E.move(state,walk.x,walk.y,step*walk.f);}
+  else{walk.f=0;E.walkPath(state,step);}
+}
+function loop(time){frame=null;if(!livePage())return;queueFrame();const dt=Math.min(.2,(time-(last||time))/1000);last=time;if(!arriving&&!paused&&!$('panel').open&&!hudUI.open&&!document.hidden&&!battleUI.active){accum+=dt;while(accum>=1/30){accum-=1/30;const dx=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),dy=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0);stepMove(dx,dy,1/30);E.tick(state,1/30);navigator.update(1/30);if(!battleUI.active){const foes=BT.encounter(state,dist);if(foes.length){battleUI.start(foes);break;}}}}else{walk.f=0;E.respawns(state,Date.now());}renderer.draw(state,time,!arriving&&!paused&&!$('panel').open&&!hudUI.open&&!document.hidden);if(state.notice!==seenNotice){seenNotice=state.notice;message(seenNotice);}if(time>messageUntil)$('toast').textContent='';uiTimer+=dt;saveTimer+=dt;if(uiTimer>.4){updateHUD();music.title=arriving&&!state.journey?.created;music.fight=battleUI.active;music.boss=battleUI.boss;music.update(state);soundscape.update(state,renderer);if(effectsOn)void raiderVoices.update(state);uiTimer=0;}journeyUI.autoSave(dt);if(saveTimer>5){saveTimer=0;save();}}
 document.addEventListener('visibilitychange',handleVisibility);window.addEventListener('pagehide',handlePageHide);window.addEventListener('pageshow',handlePageShow);
 renderer.ready.then(()=>{if(disposed)return;worldReady=true;$('loading').hidden=true;updateHUD();save();startIntro();if(livePage())startLoop();}).catch(()=>{if(!disposed)$('loading').textContent='The 3D world could not load. Refresh to resume your saved journey.';});
 

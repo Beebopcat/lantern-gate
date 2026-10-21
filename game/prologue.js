@@ -6,9 +6,9 @@ export const PROLOGUE=[
 // Frozen original story identity. B is selected only after all three native
 // recordings match their promoted transcript QA, format and byte hashes.
 export const PROLOGUE_B_IDENTITY=Object.freeze({version:1,storyId:'lantern-gate-prologue-v1',engine:'qwen3-tts-1.7b-base',voice:'qn_lorath_refined',seed:93019,textSha256:'96c28dacfc97862bd58262103319636b2859cd6c4e61ab2cb82f3bbdb803ec6f',clips:Object.freeze([
- {scene:0,textSha256:'a0033703c1aca7981493622264c8ec767e765e3331f31ca4f46e950059782307',src:'/demos/top-secret/lantern-gate/audio/narration/rpg-prologue-scene-01-a0033703c1ac.wav',samplingSeed:93019},
- {scene:1,textSha256:'fad58bac3d64ddd51364571c07cf31bb202b2849df290e295f11509182e641d3',src:'/demos/top-secret/lantern-gate/audio/narration/rpg-prologue-scene-02-fad58bac3d64.wav',samplingSeed:93020},
- {scene:2,textSha256:'71c50dea36436d34ef55f0979dcf302e4b942e561b9c5039fa80775c8be93144',src:'/demos/top-secret/lantern-gate/audio/narration/rpg-prologue-scene-03-71c50dea3643.wav',samplingSeed:93021}
+ {scene:0,textSha256:'a0033703c1aca7981493622264c8ec767e765e3331f31ca4f46e950059782307',src:'audio/narration/rpg-prologue-scene-01-a0033703c1ac.wav',samplingSeed:93019},
+ {scene:1,textSha256:'fad58bac3d64ddd51364571c07cf31bb202b2849df290e295f11509182e641d3',src:'audio/narration/rpg-prologue-scene-02-fad58bac3d64.wav',samplingSeed:93020},
+ {scene:2,textSha256:'71c50dea36436d34ef55f0979dcf302e4b942e561b9c5039fa80775c8be93144',src:'audio/narration/rpg-prologue-scene-03-71c50dea3643.wav',samplingSeed:93021}
 ])});
 export function validatePrologueBManifest(manifest){
  const expected=PROLOGUE_B_IDENTITY;

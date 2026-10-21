@@ -46,7 +46,7 @@ reed:[
 'I keep dry blankets in three houses along the harbor road. Rescues are easier when the preparation happened before anybody needed rescuing.',
 'Clove was my grandmother’s favorite spice and apparently a suitable name for a child. I put it in the festival buns so her decision still makes sense.',
 'I grow vegetables above the tide line in raised beds. Every winter somebody suggests moving farther inland. Every spring the harbor needs feeding.',
-'My best ledger lists loans repaid in work: a patched roof, a repaired net, three nights watching a sick neighbor. Gold is only one way to balance an account.',
+'My best ledger lists loans repaid in work: a patched roof, a repaired net, three nights watching a sick friend. Gold is only one way to balance an account.',
 'I can identify most ships by their rigging. The red-sailed vessel changes its name every season, but never the way its captain avoids the watch.',
 'The fen paths move when the tide is high. I tie colored cords above the water so strangers can find the ground beneath it.',
 'My kitchen serves the early fishing crews before sunrise. I know which boats have returned by which chairs fill up.',

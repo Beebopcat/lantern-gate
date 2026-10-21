@@ -1,0 +1,32 @@
+THE NINE MARCHES: ORIGINAL CHAMBER SCORE AND RECORDED VOICES
+
+Five original arrangements for The Lantern Gate: Town (2:41), Wild (3:04), Night (3:40), Dungeon (4:01), and Battle (2:03).
+Composed for this project with distinct melodies, four-part development, voiced strings, harp, woodwinds, plucked guitar, and percussion. Stereo 48 kHz / 192 kbps MP3; dynamically selected in game.
+
+Sample instruments: GeneralUser GS by S. Christian Collins, https://schristiancollins.com/generaluser.php
+Rendered with FluidSynth, https://www.fluidsynth.org/
+GeneralUser GS permits creation and distribution of music recordings, including commercial work. The instrument bank and rendering tools are not included in the website.
+
+World effects are original procedural audio. No Ultima or film music, recordings, dialogue, or original game assets are used.
+
+HORROR EXPANSION
+The Bell Remembers: original 93-second orchestral hunt score, 124 BPM.
+Names Under Water: original 93-second prologue underscore, 62 BPM.
+Both rendered at 48 kHz stereo, 256 kbps MP3 with the same existing GeneralUser GS instrument bank. Source MIDI and score notes are preserved in the local review workspace.
+Raids select the hunt score while warning fog arrives; music returns to the region after recovery.
+Castle and Bellwrought artwork generated originally for this project; runtime creatures are separately built articulated 3D models.
+
+RECORDED NARRATION
+All active spoken dialogue uses locally produced Kokoro ONNX recordings from the existing kokoro-v1.0.onnx model and voices-v1.0.bin voice bank. Speech is synthesized at its native 24 kHz mono sample rate, checked for finite/non-silent samples, given short edge fades and encoded as MP3. No browser/device speech voice or voice-selection menu is included. Missing or unplayable recordings leave the readable text available.
+
+The fictional resident cast uses five female voices (af_heart, af_bella, af_nicole, bf_emma, bf_isabella) and five male voices (am_michael, am_fenrir, bm_george, bm_lewis, bm_daniel). Each resident retains a deterministic voice matching the authored gender. bm_george is a Kokoro model voice, not a Microsoft voice.
+
+The opening story and The Book of Borrowed Names use bm_daniel. The opening recording has an additional 2.8-second ending fade. Two original raider scripts are recorded in am_fenrir and bm_daniel. Pip's finite Pocket Dragon clues use am_michael. These are synthetic voices, not actor performances or imitations of film actors.
+
+Raider takes receive a gentle original monster vocal treatment: a 1.35-semitone lower pitch with preserved speech timing, controlled dynamics and a short room reflection. Native takes are preserved separately outside the public website.
+
+Music, recorded dialogue and world effects begin enabled. Browser autoplay rules may require one launch click. Mute controls remain available. Retired device-generated recordings are preserved only as offline provenance and excluded from the current release. Costume studies show separately built articulated 3D prototype models.
+
+MORE MUSIC (October 2026)
+Thirteen additional original arrangements: Market Morning and Fountain Song (towns); Heather Hills and River Crossing (roads and wilds); Owl Hours and Candle Lullaby (night); Dripstone and Ash Corridor (cellars, crypts and castle); Steel and Lantern, Last Light Skirmish and Hollow March (battles); Gate at Dawn and Lantern Hymn (title screen).
+Composed for this project from original scales, chord progressions and motifs, then rendered with FluidSynth and the same GeneralUser GS instrument bank by S. Christian Collins as the existing scores. 48 kHz stereo, 160 kbps MP3. No existing music or recordings are used. Choose a track or leave it on Auto mix in Settings.

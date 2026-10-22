@@ -1,11 +1,12 @@
-// Original detailed raster illustrations, extracted from preserved native artwork atlases.
+// Simple interface vectors; character/world art remains owned by the renderer.
+import {interfaceIconId} from './interface-icon-map.js';
 const names=new Set(["bread","tonic","salve","sword","armor","bow","lantern","journal","map","home","cave","town","notice","well","anvil","bed","flowers","pet","bag","settings","compass","interact","person","chest","check","fish","leaf","ore","wood","coil","lens","medallion","bell","pearl","ledger","locket","verse","seed","crown","heart","ring","cart","grave","table","chair","oven","bookcase","stall"]);
 const aliases={blade:'sword',attack:'sword',spell:'lantern',lamp:'lantern',brazier:'oven',beacon:'lantern',nearby:'compass',atlas:'map',life:'home',property:'home',door:'home',portal:'cave',entrance:'cave',stairsUp:'cave',stairsDown:'cave',ruin:'cave',haunted:'home',crypt:'grave',abbey:'grave',fort:'town',gate:'lantern',archive:'bookcase',cellar:'cave',mine:'ore',roots:'leaf',landmark:'town',tableware:'table',barrels:'chest',alchemy:'salve',farmwork:'leaf',crystal:'heart',plant:'leaf',branch:'wood',relic:'heart',wardrobe:'armor',rug:'map',petbed:'bed',cat:'pet',dog:'pet',fox:'pet',keeper:'lantern',scholar:'journal',smith:'anvil',healer:'salve',baker:'bread',farmer:'leaf',merchant:'stall',guard:'armor',ranger:'bow',innkeeper:'bed',enemy:'sword',rock:'ore',bare:'wood',gold:'ring',search:'lens',furniture:'chair',outfit:'armor'};
 const controls={arrow:'➜',pause:'Ⅱ',play:'▶',close:'×',help:'?'};
 export function icon(key,extra=''){
- if(controls[key])return '<span class="game-icon game-control-art '+extra+'" aria-hidden="true"><span>'+controls[key]+'</span></span>';
- const name=names.has(key)?key:aliases[key]||'heart';
- return '<img class="game-icon '+extra+'" src="assets/interface/'+name+'.webp" width="72" height="72" alt="" aria-hidden="true" draggable="false" decoding="async">';
+ const known=names.has(key)||Object.hasOwn(aliases,key)||Object.hasOwn(controls,key);
+ const name=interfaceIconId(known?key:'heart'),classes='game-icon '+(Object.hasOwn(controls,key)?'game-control-art ':'')+extra;
+ return '<img class="'+classes+'" src="assets/interface-vector/'+name+'.svg" width="72" height="72" alt="" aria-hidden="true" draggable="false" decoding="async">';
 }
 export const itemIcon=id=>icon(id,'inventory-art');
 export function decorateControls(root=document){

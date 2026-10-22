@@ -3,25 +3,15 @@
 // foes, Ward pips and Fray glyphs under each foe, the Kindle control, the strip of the next eight turns, the command,
 // skill, item and target menus, and the result screen. Nothing here is saved, rolled or played as sound.
 import * as B from './battle.js';
+import {FRAY_ICON_ART} from './fray-icons.js';
 import { foeData } from './battle-data.js';
 import { spriteFor, spriteSheet, drawSprite, POSE_FRAMES } from './sprites.js';
 
 // ---------------------------------------------------------------- Fray glyphs
-// Nine-by-nine pixel marks, one per damage type, drawn as crisp SVG so they stay hard-edged at any scale.
-const BITMAPS = {
-  blade:   ['........#', '.......##', '......##.', '#....##..', '##..##...', '.####....', '..##.....', '.#.##....', '#...#....'],
-  bow:     ['..###....', '..#.##...', '..#..##..', '..#...##.', '.########', '..#...##.', '..#..##..', '..#.##...', '..###....'],
-  arcane:  ['....#....', '...###...', '...###...', '.#######.', '#########', '.#######.', '...###...', '...###...', '....#....'],
-  flame:   ['....#....', '....##...', '...###...', '..####.#.', '.#######.', '.###.###.', '.###.###.', '..#####..', '...###...'],
-  frost:   ['....#....', '.#..#..#.', '..#.#.#..', '...###...', '#########', '...###...', '..#.#.#..', '.#..#..#.', '....#....'],
-  spirit:  ['...###...', '..#####..', '.#######.', '.##.#.##.', '.#######.', '.#######.', '.#######.', '.##.#.##.', '.#..#..#.'],
-  unknown: ['..####...', '.##..##..', '.....##..', '....##...', '...##....', '...##....', '.........', '...##....', '...##....']
-};
-const GLYPH_CACHE = {};
+// Simple original Fray shapes fit the existing 11px/13px marks; damage/state logic stays in battle.js.
 function glyph(type, cls = '') {
-  const rows = BITMAPS[type] || BITMAPS.unknown;
-  GLYPH_CACHE[type] ??= rows.map((r, y) => { let d = '', x = 0; while (x < r.length) { if (r[x] === '#') { let x2 = x; while (x2 < r.length && r[x2] === '#') x2++; d += `M${x} ${y}h${x2 - x}v1h${x - x2}z`; x = x2; } else x++; } return d; }).join('');
-  return `<svg class="g g-${type} ${cls}" viewBox="0 0 9 9" shape-rendering="crispEdges" focusable="false" aria-hidden="true"><path d="${GLYPH_CACHE[type]}"/></svg>`;
+  const key = Object.hasOwn(FRAY_ICON_ART, type) ? type : 'unknown';
+  return `<svg class="g g-${type} ${cls}" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${FRAY_ICON_ART[key]}</g></svg>`;
 }
 const typeLabel = t => B.TYPE_INFO[t]?.label || t;
 

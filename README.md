@@ -4,7 +4,9 @@
 
 [**▶ Live demo / Play on caseyshingledecker.com**](https://caseyshingledecker.com/demos/top-secret/lantern-gate/) · [**Source**](https://github.com/Beebopcat/lantern-gate)
 
-[![Pixel-art village street in warm light with the title menu showing New Game, Load Game and Settings.](docs/media/01.webp)](https://caseyshingledecker.com/demos/top-secret/lantern-gate/)
+[![The Nine Marches promotional cover art.](docs/media/design-cover.webp)](https://caseyshingledecker.com/demos/top-secret/lantern-gate/)
+
+*Promotional cover art; gameplay screenshots appear below.*
 
 ## What it is
 

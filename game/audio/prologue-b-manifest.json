@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "storyId": "lantern-gate-prologue-v1",
+  "engine": "qwen3-tts-1.7b-base",
+  "voice": "qn_lorath_refined",
+  "seed": 93019,
+  "textSha256": "96c28dacfc97862bd58262103319636b2859cd6c4e61ab2cb82f3bbdb803ec6f",
+  "text": "Once, the Nine Marches kept a lantern at every threshold. Their light was a promise: no traveler would be left to the dark. Then the river rose, and the keepers made a bargain beneath the Gate. They saved the towns. They never named the price.\n\nNow doors are barred before dusk. Graves open where no shovel has passed. In the northern mist, Dracula’s castle has begun to ring its bells again. A count keeps his court above the clouds. A broken creation waits below. And something wearing the shape of a wolf has learned the roads home.\n\nYou arrive in Hearthwick with a name, a calling, and one small light. Mara still believes the old promise can be mended. The Marches need more than a sword. They need someone willing to discover what the keepers buried. Choose who you will become. And when the bells begin, do not mistake silence for safety.",
+  "status": "pending",
+  "transcriptQA": "pending",
+  "clips": [
+    {
+      "scene": 0,
+      "textSha256": "a0033703c1aca7981493622264c8ec767e765e3331f31ca4f46e950059782307",
+      "src": "audio/narration/rpg-prologue-scene-01-a0033703c1ac.wav",
+      "samplingSeed": 93019,
+      "status": "pending",
+      "transcriptQA": "pending",
+      "voice": "qn_lorath_refined",
+      "seed": 93019,
+      "sampleRate": 24000,
+      "channels": 1,
+      "bits": 24
+    },
+    {
+      "scene": 1,
+      "textSha256": "fad58bac3d64ddd51364571c07cf31bb202b2849df290e295f11509182e641d3",
+      "src": "audio/narration/rpg-prologue-scene-02-fad58bac3d64.wav",
+      "samplingSeed": 93020,
+      "status": "pending",
+      "transcriptQA": "pending",
+      "voice": "qn_lorath_refined",
+      "seed": 93019,
+      "sampleRate": 24000,
+      "channels": 1,
+      "bits": 24
+    },
+    {
+      "scene": 2,
+      "textSha256": "71c50dea36436d34ef55f0979dcf302e4b942e561b9c5039fa80775c8be93144",
+      "src": "audio/narration/rpg-prologue-scene-03-71c50dea3643.wav",
+      "samplingSeed": 93021,
+      "status": "pending",
+      "transcriptQA": "pending",
+      "voice": "qn_lorath_refined",
+      "seed": 93019,
+      "sampleRate": 24000,
+      "channels": 1,
+      "bits": 24
+    }
+  ]
+}

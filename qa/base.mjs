@@ -1,0 +1,10 @@
+import {chromium} from '/opt/npm-tools/node_modules/playwright/index.mjs';
+const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--mute-audio','--autoplay-policy=user-gesture-required']});
+const p=await b.newPage({viewport:{width:1280,height:720}});
+p.on('console',m=>{if(m.type()==='error')console.log('ERR',m.text())});p.on('pageerror',e=>console.log('PAGEERR',e.message));
+await p.goto('http://127.0.0.1:8099/demos/top-secret/lantern-gate/index.html');
+await p.waitForFunction(()=>document.getElementById('world')?.dataset.ready==='true',null,{timeout:60000}).catch(e=>console.log('notready',e.message));
+await p.waitForTimeout(3000);
+console.log(await p.evaluate(()=>{const r=e=>{const b=document.querySelector(e)?.getBoundingClientRect();return b&&[b.x,b.y,b.width,b.height].map(Math.round)};return JSON.stringify({story:r('.cinematic-story'),title:r('.cinematic-title'),ov:r('#journey-intro'),hidden:document.getElementById('journey-intro').hidden})}));
+await p.screenshot({path:'base.png'});
+await b.close();

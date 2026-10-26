@@ -1,0 +1,32 @@
+/* Casey's minimal exploration HUD: layout rules (what shows, where, and how big).
+   Layout only: colours, frames and type for these elements live in jrpg-theme.css (the Lantern storybook skin). */
+#game{display:block!important;position:relative;isolation:isolate;width:100%;height:100%;min-height:0;overflow:hidden}
+#game>.viewport{position:absolute;inset:0;width:100%;height:100%;min-height:0}
+#world{width:100%;height:100%;display:block}
+#loading{position:absolute;inset:0;display:grid;place-items:center;z-index:4}
+/* Character plate: centred at the bottom edge, never interactive (clicks fall through to the world). */
+.vitals{z-index:2;position:absolute!important;left:50%!important;right:auto!important;top:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;transform:translateX(-50%);width:clamp(190px,46vw,300px)!important;min-width:0!important;pointer-events:none}
+.vitals #level-points{display:none!important}
+/* No navigation text in play: place, region, objective, prompts and on-screen pads stay hidden. */
+.world-status,#tutorial-card,#hunt-status,#class-abilities,#route-status,#raid-banner,.quest-ribbon,.direction-pad,.interaction-hint,#world-labels,.resume-title{display:none!important}
+#game[data-paused=true] .viewport::after{display:none!important}
+#hud-menu{position:absolute;z-index:22;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));min-height:44px;min-width:76px}
+#hud-menu-surface{position:absolute;z-index:23;left:8px;bottom:84px;width:min(620px,calc(100% - 16px));max-height:calc(100% - 100px);overflow:auto}
+#hud-menu-surface[hidden]{display:none!important}
+/* Messages (toasts, the fallen notice and small conversation windows): 210% taller than the original layout, bounded to the view (minimal-hud.js). */
+#toast,#death,dialog#panel[data-compact=true]{box-sizing:border-box!important;position:absolute!important;left:max(8px,env(safe-area-inset-left))!important;right:auto!important;top:auto!important;bottom:var(--message-bottom,84px)!important;transform:none!important;margin:0!important;width:var(--message-width)!important;min-width:0!important;max-width:var(--message-width)!important;height:var(--message-height)!important;min-height:0!important;max-height:var(--message-height)!important;overflow:auto!important;z-index:24}
+#toast:empty{display:none!important}#death[hidden]{display:none!important}
+dialog#panel[data-compact=true][open]{display:block!important}dialog#panel[data-compact=true] #panel-body{overflow:visible!important}
+/* Larger inventory/settings forms appear only after deliberate menu/keyboard access, in the journey book's place. */
+dialog#panel:not(.creation-dialog):not([data-compact=true]){position:fixed;inset:auto auto 84px 8px!important;margin:0!important;transform:none!important;width:min(684px,calc(100% - 16px))!important;max-width:calc(100% - 16px)!important;max-height:calc(100% - 100px)!important;min-width:0}
+#game[data-panel-open=true] #toast{display:none!important}
+
+/* Keep restored portrait/detail content readable and controls reachable within the expanded message. */
+dialog#panel[data-compact=true] #close-panel{width:44px;height:44px;min-height:44px}
+dialog#panel[data-compact=true] #panel-body button{min-height:44px}
+@media(max-width:600px),(max-height:520px){
+  dialog#panel[data-compact=true] .talk-portrait{width:64px;height:64px;margin:0 10px 8px 0}
+}
+@media(max-height:520px){
+  dialog#panel[data-compact=true] .dialog-top,dialog#panel[data-compact=true] #panel-title{position:static}
+}

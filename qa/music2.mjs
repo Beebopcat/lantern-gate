@@ -1,0 +1,27 @@
+import {launch,newPage,BASE,ok,summary} from './lib.mjs';
+const b=await launch();const page=await newPage(b,{w:600,h:400});
+await page.goto(BASE+'narrator-b-expected.js');await page.mouse.click(10,10);
+const r=await page.evaluate(async(BASE)=>{
+ const base=new URL(BASE,location.href).pathname;const A=await import(base+'audio.js'),E=await import(base+'engine.js'),S=await import(base+'soundtrack.js');
+ const s=E.fresh(Date.now());const m=new A.Music();const seen=[];const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ const cur=()=>[...document.querySelectorAll('audio[data-score]')].filter(a=>!a.paused).map(a=>a.dataset.score);
+ m.title=true;await m.enable(true);seen.push(['title',m.track.id,m.track.mode]);
+ m.title=false;m.update(s);await wait(1500);seen.push(['world',m.mode,m.track.mode]);
+ m.fight=true;m.update(s);await wait(2500);seen.push(['fight',m.mode,m.track.mode,m.track.id]);
+ m.fight=false;await wait(6500);m.update(s);await wait(2500);seen.push(['back',m.mode,m.track.mode]);
+ s.settings.musicTrack='owl-hours';m.update(s);await wait(2500);seen.push(['forced',m.track.id]);
+ s.settings.musicTrack='auto';const before=m.track.id;await m.skip();seen.push(['skip',before,m.track.id,m.track.mode]);
+ const hunt=E.fresh(Date.now());hunt.raid={id:'x'};m.update(hunt);await wait(2500);seen.push(['hunt',m.mode,m.track.id]);
+ const playing=cur();m.dispose();
+ return {seen,playing,tracks:S.TRACKS.length};
+},BASE);
+console.log(JSON.stringify(r));
+const t=Object.fromEntries(r.seen.map(x=>[x[0],x]));
+ok(t.title[2]==='title','title mode picks a title track');
+ok(t.fight[1]==='fight'&&t.fight[2]==='fight','battle mode plays a battle track '+t.fight[3]);
+ok(t.back[1]!=='fight','returns from battle mode');
+ok(t.forced[1]==='owl-hours','chosen track overrides auto mix');
+ok(t.skip[1]!==t.skip[2],'next track changes track');
+ok(t.hunt[1]==='hunt','raid/hunt keeps the hunt score');
+ok(page.errors.length===0,'no page errors '+page.errors);
+process.exit(summary()?1:0);

@@ -1,0 +1,49 @@
+/* Layout only. Spacing and sizing of dialog contents (settings rows, quest cards, talent panel, progression bars).
+   The old plum-and-brass colour layer was replaced by the Lantern storybook skin in jrpg-theme.css. */
+select,input[type=text],input[type=search],input:not([type]),textarea{min-height:44px;padding:10px 12px}
+dialog{max-height:91dvh;overflow:auto;width:min(760px,calc(100% - 32px));padding:28px 30px}
+.dialog-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:8px}
+.dialog-top small{font-weight:600;font-size:11px;line-height:1.4}
+dialog h2{margin-bottom:22px;font-weight:500;font-size:clamp(26px,4vw,35px);line-height:1.2;margin:17px 0 20px}
+dialog h3{font-weight:600;line-height:1.4;font-size:21px;margin-top:24px}
+dialog p{margin:12px 0;font-size:15px;line-height:1.75}
+dialog button{margin:3px 4px 3px 0;min-height:44px;padding:11px 16px;line-height:1.4}
+.subtle{font-size:11px;line-height:1.7}
+.npc-detail{font-weight:600;font-size:11px;line-height:1.7;font-size:12px!important}
+.quest-card{padding:18px 0}
+.quest-card h3{margin:0 0 5px;font-weight:600;font-size:21px}
+.market-grid h3,.home-card h3{font-size:20px;margin:0 0 9px}
+.home-card p{font-size:14px;line-height:1.65}
+#pet-name{display:block;margin:12px 0;width:100%;font-size:16px;padding:11px 12px}
+.settings-row label{font-size:15px;line-height:1.5}
+.settings-row button{margin:0;min-width:114px;font-size:14px}
+.destination-copy strong{font-weight:600;overflow-wrap:anywhere;font-size:20px;line-height:1.25}
+.journey-settings h3{padding-bottom:10px}
+#network-status{padding:10px;line-height:1.6}
+.progression-bar,.xp-track{height:7px;overflow:hidden}
+.progression-bar>span,.xp-track>span{display:block;height:100%}
+.progression-label,.xp-label{font-size:10px;line-height:1.5}
+.progression-panel{padding:18px}
+@media(max-width:700px){
+  dialog{padding:21px 19px}
+  .settings-row{gap:12px;flex-wrap:wrap;padding:17px 0}
+  .settings-row label{flex:1;min-width:110px;font-size:14px}
+  .settings-row select{max-width:210px}
+  .settings-row button{min-width:105px}
+  .market-grid h3,.home-card h3{font-size:19px}
+  .destination-copy strong{font-size:20px}
+}
+@media(max-width:430px){
+  dialog{padding:19px 16px;max-height:94dvh}
+  .settings-row select{max-width:190px;width:100%}
+  .settings-row:has(select){display:grid;grid-template-columns:minmax(0,1fr)}
+  .settings-row input{max-width:150px}
+  .choices button{min-height:46px;font-size:14px;padding:11px 13px}
+  .item strong{font-size:16px}
+  .destination-card{gap:12px!important}
+  .destination-copy strong{font-size:19px}
+}
+.talent-panel{margin:18px 0;padding:16px}
+.talent-panel .choices button{flex:1;min-width:160px;text-align:left}
+.talent-panel small{display:block;margin-top:7px;line-height:1.5}
+.talent-panel h3{margin-top:0}

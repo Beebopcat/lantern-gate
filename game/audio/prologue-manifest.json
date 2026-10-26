@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "status": "pending",
+  "engine": "kokoro-onnx",
+  "voice": "bm_daniel",
+  "gender": "male",
+  "file": "prologue.mp3",
+  "text": "Once, the Nine Marches kept a lantern at every threshold. Their light was a promise: no traveler would be left to the dark. Then the river rose, and the keepers made a bargain beneath the Gate. They saved the towns. They never named the price.\n\nNow doors are barred before dusk. Graves open where no shovel has passed. In the northern mist, Dracula’s castle has begun to ring its bells again. A count keeps his court above the clouds. A broken creation waits below. And something wearing the shape of a wolf has learned the roads home.\n\nYou arrive in Hearthwick with a name, a calling, and one small light. Mara still believes the old promise can be mended. The Marches need more than a sword. They need someone willing to discover what the keepers buried. Choose who you will become. And when the bells begin, do not mistake silence for safety.",
+  "sourceSampleRate": 24000,
+  "seconds": 41.637,
+  "holdReason": "Approved narration awaiting review. Read the full introduction."
+}

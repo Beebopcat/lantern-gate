@@ -1,0 +1,7 @@
+/* Layout only. Journey settings and concept-art blocks. The old cinematic intro, tutorial card, hunt and ability bars are
+   hidden in play by minimal-hud.css, so their rules were removed. Paint lives in jrpg-theme.css. */
+[hidden]{display:none!important}
+.journey-settings{margin-top:26px;padding-top:18px}
+.journey-settings p{font-size:14px;line-height:1.6}
+.castle-story-art{display:block;width:100%;margin-bottom:20px}
+.bestiary-art{display:block;width:100%;max-height:450px}

@@ -1,0 +1,9 @@
+/* Layout only. Sizes of the interface artwork icons. */
+.game-icon{display:inline-block;width:42px;height:42px;overflow:visible;flex-shrink:0;vertical-align:middle}
+.game-control-art{display:inline-grid;place-items:center;position:relative}
+.game-control-art>span{font-weight:bold;font-size:1.1em;line-height:1}
+.item .inventory-art{width:52px;height:52px}
+.destination-art .game-icon{width:58px;height:58px}
+@media(max-width:650px){
+  .item .inventory-art{width:43px;height:43px}
+}

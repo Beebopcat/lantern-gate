@@ -1,0 +1,2 @@
+import {chromium} from '/opt/npm-tools/node_modules/playwright/index.mjs';
+for(const port of [8099,8098]){const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--mute-audio']});const p=await b.newPage();p.on('response',r=>{if(r.status()>=400)console.log(port,r.status(),r.url())});await p.goto(`http://127.0.0.1:${port}/demos/top-secret/lantern-gate/index.html`);await p.waitForTimeout(4000);await b.close();}

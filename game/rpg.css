@@ -1,0 +1,46 @@
+/* Layout only. Base reset, the game frame and the structure of dialog contents (sizes, spacing, flow).
+   Colours, borders, type faces and effects all live in jrpg-theme.css, which is linked first. Do not add paint here. */
+:root{font-size:15px;line-height:1.5}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+.viewport{position:relative;min-height:0;overflow:hidden}
+#world{width:100%;height:100%;display:block;touch-action:none}
+.talk-portrait{float:left;display:block;width:157px;height:180px;margin:0 21px 12px 0}
+.dialog-section{margin-top:15px;padding-top:18px}
+.quest-card p{font-size:13px;margin:5px 0}
+.quest-card small{font-size:10px}
+.item>div{flex:1}
+.item small{display:block;font-size:11px;line-height:1.5;margin-top:3px}
+.item-icon{font-size:24px;min-width:27px;text-align:center}
+.nearby-list{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.nearby-list button{text-align:left;margin:0;padding:14px;font-size:14px}
+.nearby-list small{display:block;margin-top:4px;font-size:11px}
+.atlas-dialog{width:min(950px,calc(100% - 25px))}
+.atlas-list h3{font-size:13px}
+.atlas-list button small{display:block;margin-top:3px;font-size:11px}
+.help-grid dd{margin:0}
+.empty{font-style:italic}
+.ending{font-size:22px;line-height:1.7;text-align:center}
+.life-dialog{width:min(860px,calc(100% - 28px))}
+.market-wallet{font-size:20px;font-weight:600}
+.market-wallet span{font-size:13px;font-weight:400}
+.market-grid button,.home-card button{font-size:12px}
+.quest-card small,.stat-row{font-size:12px}
+.item small,.subtle{font-size:12px;line-height:1.6}
+.atlas-layout>div:first-child{text-align:center}
+@media(max-width:1050px){
+  .atlas-layout{grid-template-columns:1fr}
+  .atlas-list{max-height:230px}
+}
+@media(max-width:650px){
+  dialog{padding:17px;width:calc(100% - 18px);max-height:94dvh}
+  dialog p{font-size:14px}
+  .talk-portrait{width:105px;height:135px;margin-right:13px}
+  .nearby-list,.market-grid{grid-template-columns:1fr}
+  .settings-row select{max-width:150px}
+  .settings-row input{width:100px}
+  .settings-row label{font-size:13px}
+  .life-tabs button{font-size:12px;padding:8px}
+  .atlas-list{max-height:170px}
+  .help-grid{grid-template-columns:77px 1fr}
+}

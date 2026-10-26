@@ -1,0 +1,55 @@
+/* Increase heading sizes by 10% of the existing responsive values. Body text and controls retain their original sizes. */
+h1{font-size:2.2em}h2{font-size:1.65em}h3{font-size:1.287em}h4{font-size:1.1em}h5{font-size:.913em}h6{font-size:.737em}
+.jr-title{font-size:calc((1.05rem) * 1.1)}
+#death h2{font-size:calc((14px) * 1.1)}
+#hud-menu-surface .book-title{font-size:calc((17px) * 1.1)}
+#panel #panel-title{font-size:calc((clamp(20px, 2.3vw, 26px)) * 1.1)}
+#panel-body h3{font-size:calc((16px) * 1.1)}
+#panel-body .character-summary h3{font-size:calc((20px) * 1.1)}
+#panel-body .skill-branch h3{font-size:calc((15px) * 1.1)}
+#panel-body .achievement h3{font-size:calc((15px) * 1.1)}
+#panel-body .atlas-list h3{font-size:calc((14px) * 1.1)}
+#panel-body .quest-card h3{font-size:calc((17px) * 1.1)}
+#panel-body .market-grid h3,#panel-body .home-card h3{font-size:calc((16px) * 1.1)}
+dialog#panel[data-compact="true"] #panel-title{font-size:calc((13px) * 1.1)}
+dialog#panel[data-compact="true"] #panel-body h3{font-size:calc((12.5px) * 1.1)}
+dialog#panel[data-compact="true"] #panel-body h3{font-size:calc((13px) * 1.1)}
+dialog#panel[data-compact="true"] .quest-card h3{font-size:calc((13px) * 1.1)}
+dialog#panel.creation-dialog #panel-title{font-size:calc((clamp(22px, 3.2vw, 36px)) * 1.1)}
+#panel.creation-dialog #panel-body h3.jr-title{font-size:calc((16px) * 1.1)}
+@media (max-width: 560px){
+dialog#panel.creation-dialog #panel-title{font-size:calc((24px) * 1.1)}
+}
+@media (max-height: 500px){
+dialog#panel.creation-dialog #panel-title{font-size:calc((22px) * 1.1)}
+}
+.atlas-list h3{font-size:calc((13px) * 1.1)}
+@media (max-width: 650px){
+dialog h2{font-size:calc((28px) * 1.1)}
+}
+dialog h2{font-size:calc((clamp(26px, 4vw, 35px)) * 1.1)}
+dialog h3{font-size:calc((21px) * 1.1)}
+.quest-card h3{font-size:calc((21px) * 1.1)}
+.market-grid h3,.home-card h3{font-size:calc((20px) * 1.1)}
+@media (max-width: 700px){
+.market-grid h3,.home-card h3{font-size:calc((19px) * 1.1)}
+}
+.skill-branch h3{font-size:calc((15px) * 1.1) !important}
+#battle .b-banner{font-size:calc((1rem) * 1.1)}
+#battle .b-subtitle{font-size:calc((1.02rem) * 1.1)}
+#battle .b-ov-title{font-size:calc((1.7rem) * 1.1)}
+#battle .b-h4{font-size:calc((0.64rem) * 1.1)}
+@media (max-width: 599px){
+#battle .b-banner{font-size:calc((0.9rem) * 1.1)}
+}
+.ql-gh{font-size:calc((0.86rem) * 1.1) !important}
+#panel-body .qx .qd-title{font-size:calc((1.55rem) * 1.1)}
+#panel-body .qx .jr-title{font-size:calc((0.98rem) * 1.1)}
+@container qx (max-width: 559px){
+#panel-body .qx .qd-title{font-size:calc((1.35rem) * 1.1)}
+}
+@media (max-height: 760px){
+.qd-title{font-size:calc((1.4rem) * 1.1) !important}
+}
+#panel-body .qx .qc-title{font-size:calc((1.15rem) * 1.1)}
+.qt-ribbon .qt-title{font-size:calc((0.9rem) * 1.1)}
